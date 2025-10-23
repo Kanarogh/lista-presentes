@@ -192,7 +192,7 @@
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
     import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
-    // --- COLE A SUA MESMA CONFIGURAÇÃO DO FIREBASE AQUI ---
+    // --- SUA CONFIGURAÇÃO DO FIREBASE (já está correta) ---
     const firebaseConfig = {
         apiKey: "AIzaSyDHzO4EEriWRsbIwW6Dry0pQAww4e4d3-c",
         authDomain: "lista-de-presentes-e3c02.firebaseapp.com",
@@ -203,13 +203,13 @@
         measurementId: "G-N421XQHTF8"
     };
 
-    // Inicializa Firebase e os serviços que vamos usar
+    // Inicializa Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
     // --- CONFIGURAÇÃO ---
-    const ADMIN_EMAIL = "admin@gmail.com"; // <-- MUDE PARA O SEU EMAIL DE ADMIN
+    const ADMIN_EMAIL = "admin@gmail.com"; // <-- SEU EMAIL DE ADMIN
 
     let gifts = [];
     let isAdminMode = false;
@@ -219,16 +219,7 @@
     const modeToggle = document.getElementById('modeToggle');
     const modeIndicator = document.getElementById('modeIndicator');
 
-    // Função de logout atualizada
-    function logout() {
-        signOut(auth).then(() => {
-            console.log('Usuário deslogado');
-        }).catch((error) => {
-            console.error('Erro ao deslogar:', error);
-        });
-    }
-
-    // Listener de Autenticação (verifica se o usuário está logado)
+    // Listener de Autenticação
     onAuthStateChanged(auth, user => {
         if (user && user.email === ADMIN_EMAIL) {
             isAdminMode = true;
@@ -248,7 +239,7 @@
         fetchGifts();
     });
 
-    // --- FUNÇÕES DE DADOS COM FIREBASE V9+ ---
+    // --- FUNÇÕES DE DADOS (COM A NOVA LÓGICA) ---
 
     async function fetchGifts() {
         const giftList = document.getElementById('giftList');
@@ -258,6 +249,8 @@
             const giftsCollection = collection(db, 'gifts');
             const snapshot = await getDocs(giftsCollection);
             gifts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            // Ordena a lista para que os itens não comprados apareçam primeiro
+            gifts.sort((a, b) => a.purchased - b.purchased);
             renderGifts();
         } catch (error) {
             console.error("Erro ao buscar presentes: ", error);
@@ -265,7 +258,8 @@
         }
     }
 
-    window.addItem = async function(event) {
+    // Adiciona os novos campos por padrão
+    window.addItem = async function (event) {
         event.preventDefault();
         if (!isAdminMode) return;
 
@@ -274,7 +268,13 @@
         const category = document.getElementById('itemCategory').value;
 
         try {
-            await addDoc(collection(db, 'gifts'), { name, link, category });
+            await addDoc(collection(db, 'gifts'), {
+                name,
+                link,
+                category,
+                purchased: false, // NOVO CAMPO
+                purchasedBy: ""   // NOVO CAMPO
+            });
             hideAddForm();
             fetchGifts();
         } catch (error) {
@@ -282,38 +282,51 @@
         }
     }
 
-    window.updateItem = async function(event) {
-        event.preventDefault();
-        if (!isAdminMode) return;
+    // NOVO: Função para o usuário marcar como comprado
+    window.markAsPurchased = async function (id) {
+        const buyerName = prompt("Que legal! Para evitar presentes repetidos, por favor, digite seu nome:", "");
 
-        const id = document.getElementById('editItemId').value;
-        const name = document.getElementById('editItemName').value;
-        const link = document.getElementById('editItemLink').value;
-        const category = document.getElementById('editItemCategory').value;
-
-        try {
-            const giftDoc = doc(db, 'gifts', id);
-            await updateDoc(giftDoc, { name, link, category });
-            hideEditModal();
-            fetchGifts();
-        } catch (error) {
-            console.error("Erro ao atualizar item: ", error);
+        if (buyerName && buyerName.trim() !== "") {
+            try {
+                const giftDoc = doc(db, 'gifts', id);
+                await updateDoc(giftDoc, {
+                    purchased: true,
+                    purchasedBy: buyerName.trim()
+                });
+                fetchGifts(); // Atualiza a lista para todos verem
+            } catch (error) {
+                console.error("Erro ao marcar como comprado: ", error);
+                alert("Ocorreu um erro. Tente novamente.");
+            }
+        } else {
+            alert("O nome é necessário para marcar o presente.");
         }
     }
 
-    window.deleteItem = async function(id) {
+    // NOVO: Função para o admin desfazer a compra
+    window.togglePurchasedStatus = async function (id, currentStatus) {
         if (!isAdminMode) return;
-        if (confirm("Tem certeza que deseja excluir este presente?")) {
+
+        const newStatus = !currentStatus;
+        const confirmationText = newStatus
+            ? "Tem certeza que deseja marcar este item como 'comprado' manualmente?"
+            : "Tem certeza que deseja reverter este item para 'não comprado'?";
+
+        if (confirm(confirmationText)) {
             try {
-                await deleteDoc(doc(db, 'gifts', id));
+                const giftDoc = doc(db, 'gifts', id);
+                await updateDoc(giftDoc, {
+                    purchased: newStatus,
+                    purchasedBy: newStatus ? "Admin" : ""
+                });
                 fetchGifts();
             } catch (error) {
-                console.error("Erro ao deletar item: ", error);
+                console.error("Erro ao alterar status: ", error);
             }
         }
     }
 
-    // --- FUNÇÕES DE INTERFACE (praticamente sem alterações) ---
+    // --- FUNÇÕES DE INTERFACE (COM A LÓGICA DE COMPRA) ---
 
     function renderGifts() {
         const giftList = document.getElementById('giftList');
@@ -326,35 +339,73 @@
 
         gifts.forEach(gift => {
             const giftCard = document.createElement('div');
-            giftCard.className = 'item-card bg-white rounded-2xl p-6 shadow-md relative';
+            // Adiciona uma classe se o item já foi comprado
+            giftCard.className = `item-card bg-white rounded-2xl p-6 shadow-md relative ${gift.purchased ? 'opacity-60' : ''}`;
+
+            let purchaseInfo = '';
+            let actionButton = '';
+            let adminToggleButton = '';
+
+            if (gift.purchased) {
+                purchaseInfo = `<p class="text-sm text-green-700 font-bold mt-2">🎁 Já foi escolhido por: ${gift.purchasedBy}</p>`;
+                actionButton = `<button disabled class="buy-button flex-1 bg-gray-400 text-white py-2 px-4 rounded-lg font-medium cursor-not-allowed">Já Comprado</button>`;
+            } else {
+                actionButton = `<button onclick="markAsPurchased('${gift.id}')" class="buy-button flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 font-medium">✨ Escolher este presente</button>`;
+            }
+
+            if (isAdminMode) {
+                adminToggleButton = `<button onclick="togglePurchasedStatus('${gift.id}', ${gift.purchased})" class="text-sm text-blue-500 hover:underline mt-2">Alterar Status</button>`;
+            }
 
             giftCard.innerHTML = `
-                <div class="flex justify-between items-start mb-4">
+                <div class="flex justify-between items-start mb-2">
                     <span class="text-sm font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full">
                         ${gift.category}
                     </span>
                     ${isAdminMode ? `<button onclick="editItem('${gift.id}')" class="edit-button text-gray-400 hover:text-green-600 p-1">✏</button>` : ''}
                 </div>
-                <h3 class="text-lg font-semibold text-gray-800 mb-4 leading-tight">${gift.name}</h3>
-                <div class="flex gap-2 items-center">
-                    <button onclick="buyItem('${gift.link}')" class="buy-button flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 font-medium">🛒 Comprar</button>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2 leading-tight">${gift.name}</h3>
+                <a href="${gift.link}" target="_blank" class="text-sm text-blue-500 hover:underline mb-3 block">Ver sugestão de loja 🔗</a>
+                ${purchaseInfo}
+                <div class="flex flex-col mt-4">
+                  <div class="flex gap-2 items-center">
+                    ${actionButton}
                     ${isAdminMode ? `<button onclick="deleteItem('${gift.id}')" class="text-red-400 hover:text-red-600 p-2">🗑</button>` : ''}
+                  </div>
+                  ${adminToggleButton}
                 </div>
             `;
             giftList.appendChild(giftCard);
         });
     }
 
-    window.showAddForm = function() {
+    // --- FUNÇÕES AUXILIARES (permanecem as mesmas) ---
+    window.logout = function() { signOut(auth); }
+    window.showAddForm = function() { if (isAdminMode) document.getElementById('addForm').classList.remove('hidden'); }
+    window.hideAddForm = function() { document.getElementById('addForm').classList.add('hidden'); document.getElementById('addForm').querySelector('form').reset(); }
+    window.hideEditModal = function() { document.getElementById('editModal').classList.add('hidden'); }
+    window.updateItem = async function(event) {
+        event.preventDefault();
         if (!isAdminMode) return;
-        document.getElementById('addForm').classList.remove('hidden');
+        const id = document.getElementById('editItemId').value;
+        const name = document.getElementById('editItemName').value;
+        const link = document.getElementById('editItemLink').value;
+        const category = document.getElementById('editItemCategory').value;
+        try {
+            await updateDoc(doc(db, 'gifts', id), { name, link, category });
+            hideEditModal();
+            fetchGifts();
+        } catch (error) { console.error("Erro ao atualizar item: ", error); }
     }
-
-    window.hideAddForm = function() {
-        document.getElementById('addForm').classList.add('hidden');
-        document.getElementById('addForm').querySelector('form').reset();
+    window.deleteItem = async function(id) {
+        if (!isAdminMode) return;
+        if (confirm("Tem certeza?")) {
+            try {
+                await deleteDoc(doc(db, 'gifts', id));
+                fetchGifts();
+            } catch (error) { console.error("Erro ao deletar item: ", error); }
+        }
     }
-
     window.editItem = function(id) {
         if (!isAdminMode) return;
         const gift = gifts.find(g => g.id === id);
@@ -367,20 +418,7 @@
         }
     }
 
-    window.hideEditModal = function() {
-        document.getElementById('editModal').classList.add('hidden');
-    }
-
-    window.buyItem = function(link) {
-        window.open(link, '_blank', 'noopener,noreferrer');
-    }
-
-    // Anexa as funções ao objeto window para que possam ser chamadas pelo HTML (onclick)
-    // Isso é necessário quando usamos script type="module"
-    window.logout = logout;
-
 </script>
-
 </body>
 
 </html>

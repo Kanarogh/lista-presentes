@@ -60,6 +60,21 @@
     .user-mode .admin-only {
       display: none;
     }
+    /* Adicione estas novas classes ao seu CSS */
+    .purchased-card {
+        background-color: #f0fdf4; /* Um verde bem clarinho */
+        border-color: #86efac; /* Borda verde para destacar */
+    }
+
+    .purchased-info {
+        background-color: #dcfce7; /* Fundo para a mensagem */
+        color: #166534; /* Texto verde escuro */
+        padding: 6px 12px;
+        border-radius: 9999px; /* Formato de pílula */
+        font-weight: 500;
+        display: inline-block; /* Para o fundo não ocupar a linha toda */
+        margin-top: 8px;
+    }
   </style>
 </head>
 
@@ -326,7 +341,7 @@
         }
     }
 
-    // --- FUNÇÕES DE INTERFACE (COM A LÓGICA DE COMPRA) ---
+    // --- FUNÇÕES DE INTERFACE (COM A LÓGICA DE COMPRA MELHORADA) ---
 
     function renderGifts() {
         const giftList = document.getElementById('giftList');
@@ -339,16 +354,18 @@
 
         gifts.forEach(gift => {
             const giftCard = document.createElement('div');
-            // Adiciona uma classe se o item já foi comprado
-            giftCard.className = `item-card bg-white rounded-2xl p-6 shadow-md relative ${gift.purchased ? 'opacity-60' : ''}`;
+
+            // AQUI ESTÁ A MUDANÇA: Usamos a nova classe .purchased-card
+            giftCard.className = `item-card bg-white rounded-2xl p-6 shadow-md relative ${gift.purchased ? 'purchased-card' : ''}`;
 
             let purchaseInfo = '';
             let actionButton = '';
             let adminToggleButton = '';
 
             if (gift.purchased) {
-                purchaseInfo = `<p class="text-sm text-green-700 font-bold mt-2">🎁 Já foi escolhido por: ${gift.purchasedBy}</p>`;
-                actionButton = `<button disabled class="buy-button flex-1 bg-gray-400 text-white py-2 px-4 rounded-lg font-medium cursor-not-allowed">Já Comprado</button>`;
+                // E AQUI: Usamos a nova classe .purchased-info para a mensagem
+                purchaseInfo = `<p class="purchased-info">🎁 Escolhido por: ${gift.purchasedBy}</p>`;
+                actionButton = `<button disabled class="buy-button flex-1 bg-gray-400 text-white py-2 px-4 rounded-lg font-medium cursor-not-allowed">Já Escolhido</button>`;
             } else {
                 actionButton = `<button onclick="markAsPurchased('${gift.id}')" class="buy-button flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 font-medium">✨ Escolher este presente</button>`;
             }

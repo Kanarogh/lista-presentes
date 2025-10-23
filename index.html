@@ -6,76 +6,102 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lista de Presentes - Chá de Casa Nova</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
+ <style>
     body {
-      box-sizing: border-box;
+        box-sizing: border-box;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     }
 
     .gradient-bg {
-      background: linear-gradient(135deg, #f8fffe 0%, #f0fdf4 100%);
+        background: linear-gradient(135deg, #f8fffe 0%, #f0fdf4 100%);
     }
 
     .gold-accent {
-      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
     }
 
     .item-card {
-      transition: all 0.3s ease;
-      border: 1px solid #e5e7eb;
+        background-color: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 1rem; /* bordas mais arredondadas */
+        padding: 1.5rem; /* mais espaço interno */
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
 
     .item-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
     }
 
-    .buy-button {
-      transition: all 0.2s ease;
+    .category-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background-color: #ecfdf5;
+        color: #065f46;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.8rem;
+        font-weight: 500;
     }
 
-    .buy-button:hover {
-      transform: scale(1.05);
+    .primary-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        background-color: #22c55e;
+        color: white;
+        font-weight: 600;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        transition: all 0.2s ease;
+    }
+    .primary-button:hover {
+        background-color: #16a34a;
+        transform: scale(1.03);
     }
 
-    .edit-button {
-      opacity: 0;
-      transition: opacity 0.2s ease;
+    .secondary-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        background-color: transparent;
+        color: #4b5563;
+        font-weight: 500;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        border: 1px solid #d1d5db;
+        transition: all 0.2s ease;
+    }
+    .secondary-button:hover {
+        background-color: #f9fafb;
+        border-color: #9ca3af;
     }
 
-    .item-card:hover .edit-button {
-      opacity: 1;
-    }
+
 
     .mode-toggle {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 100;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 100;
     }
 
     .admin-only {
-      display: block;
+        display: block;
     }
 
     .user-mode .admin-only {
-      display: none;
+        display: none;
     }
-    /* Adicione estas novas classes ao seu CSS */
-    .purchased-card {
-        background-color: #f0fdf4; /* Um verde bem clarinho */
-        border-color: #86efac; /* Borda verde para destacar */
-    }
-
-    .purchased-info {
-        background-color: #dcfce7; /* Fundo para a mensagem */
-        color: #166534; /* Texto verde escuro */
-        padding: 6px 12px;
-        border-radius: 9999px; /* Formato de pílula */
-        font-weight: 500;
-        display: inline-block; /* Para o fundo não ocupar a linha toda */
-        margin-top: 8px;
-    }
-  </style>
+</style>
 </head>
 
 <body class="gradient-bg min-h-full" id="mainBody">
@@ -223,6 +249,10 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    const categoryEmojis = {
+    Cozinha: "🍳", Sala: "🛋", Quarto: "🛏", Banheiro: "🚿",
+    Decoração: "🎨", Limpeza: "🧽", Outros: "📦"
+};
     // --- CONFIGURAÇÃO ---
     const ADMIN_EMAIL = "admin@gmail.com"; // <-- SEU EMAIL DE ADMIN
 
@@ -343,58 +373,66 @@
 
     // --- FUNÇÕES DE INTERFACE (COM A LÓGICA DE COMPRA MELHORADA) ---
 
-    function renderGifts() {
-        const giftList = document.getElementById('giftList');
-        giftList.innerHTML = '';
+    // SUBSTITUA A SUA FUNÇÃO ANTIGA POR ESTA VERSÃO ATUALIZADA
+function renderGifts() {
+    const giftList = document.getElementById('giftList');
+    giftList.innerHTML = '';
 
-        if (gifts.length === 0) {
-            giftList.innerHTML = '<p class="text-gray-500 col-span-3 text-center">Nenhum presente na lista ainda.</p>';
-            return;
-        }
+    if (gifts.length === 0) {
+        giftList.innerHTML = '<p class="text-gray-500 col-span-3 text-center">Nenhum presente na lista ainda.</p>';
+        return;
+    }
 
-        gifts.forEach(gift => {
-            const giftCard = document.createElement('div');
+    gifts.forEach(gift => {
+        const giftCard = document.createElement('div');
+        giftCard.className = 'item-card';
 
-            // AQUI ESTÁ A MUDANÇA: Usamos a nova classe .purchased-card
-            giftCard.className = `item-card bg-white rounded-2xl p-6 shadow-md relative ${gift.purchased ? 'purchased-card' : ''}`;
-
-            let purchaseInfo = '';
-            let actionButton = '';
-            let adminToggleButton = '';
-
-            if (gift.purchased) {
-                // E AQUI: Usamos a nova classe .purchased-info para a mensagem
-                purchaseInfo = `<p class="purchased-info">🎁 Escolhido por: ${gift.purchasedBy}</p>`;
-                actionButton = `<button disabled class="buy-button flex-1 bg-gray-400 text-white py-2 px-4 rounded-lg font-medium cursor-not-allowed">Já Escolhido</button>`;
-            } else {
-                actionButton = `<button onclick="markAsPurchased('${gift.id}')" class="buy-button flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 font-medium">✨ Escolher este presente</button>`;
-            }
-
-            if (isAdminMode) {
-                adminToggleButton = `<button onclick="togglePurchasedStatus('${gift.id}', ${gift.purchased})" class="text-sm text-blue-500 hover:underline mt-2">Alterar Status</button>`;
-            }
-
+        // Lógica para o estado "Reservado" (VISUAL ATUALIZADO)
+        if (gift.purchased) {
+            giftCard.style.backgroundColor = '#f9fafb'; // Fundo levemente cinza
             giftCard.innerHTML = `
-                <div class="flex justify-between items-start mb-2">
-                    <span class="text-sm font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full">
-                        ${gift.category}
-                    </span>
-                    ${isAdminMode ? `<button onclick="editItem('${gift.id}')" class="edit-button text-gray-400 hover:text-green-600 p-1">✏</button>` : ''}
+                <div class="flex-grow">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="category-tag">${categoryEmojis[gift.category] || '🎁'} ${gift.category}</span>
+                        ${isAdminMode ? `<button onclick="editItem('${gift.id}')" class="text-gray-400 hover:text-green-600 p-1">✏️</button>` : ''}
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-500">${gift.name}</h3>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-800 mb-2 leading-tight">${gift.name}</h3>
-                <a href="${gift.link}" target="_blank" class="text-sm text-blue-500 hover:underline mb-3 block">Ver sugestão de loja 🔗</a>
-                ${purchaseInfo}
-                <div class="flex flex-col mt-4">
-                  <div class="flex gap-2 items-center">
-                    ${actionButton}
-                    ${isAdminMode ? `<button onclick="deleteItem('${gift.id}')" class="text-red-400 hover:text-red-600 p-2">🗑</button>` : ''}
-                  </div>
-                  ${adminToggleButton}
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                    <p class="text-center text-sm text-gray-700">
+                        🎁 Reservado por <strong>${gift.purchasedBy}</strong>
+                    </p>
+                    ${isAdminMode ? `<button onclick="togglePurchasedStatus('${gift.id}', ${gift.purchased})" class="text-sm text-blue-500 hover:underline mt-3 w-full text-center">Reverter Status</button>` : ''}
                 </div>
             `;
-            giftList.appendChild(giftCard);
-        });
-    }
+        }
+        // Lógica para o estado "Disponível" (sem alterações)
+        else {
+            giftCard.innerHTML = `
+                <div class="flex-grow">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="category-tag">${categoryEmojis[gift.category] || '🎁'} ${gift.category}</span>
+                        ${isAdminMode ? `<button onclick="editItem('${gift.id}')" class="text-gray-400 hover:text-green-600 p-1">✏️</button>` : ''}
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">${gift.name}</h3>
+                </div>
+                <div class="space-y-3 mt-4">
+                    <button onclick="openStoreLink('${gift.link}')" class="secondary-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"/><path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/></svg>
+                        <span>Ver Sugestão na Loja</span>
+                    </button>
+                    <button onclick="markAsPurchased('${gift.id}')" class="primary-button">
+                        <span>✨ Reservar presente</span>
+                    </button>
+                    <div class="flex justify-end w-full">
+                        ${isAdminMode ? `<button onclick="deleteItem('${gift.id}')" class="text-red-400 hover:text-red-600 p-2">🗑️</button>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+        giftList.appendChild(giftCard);
+    });
+}
 
     // --- FUNÇÕES AUXILIARES (permanecem as mesmas) ---
     window.logout = function() { signOut(auth); }
@@ -434,6 +472,9 @@
             document.getElementById('editModal').classList.remove('hidden');
         }
     }
+    window.openStoreLink = function(link) {
+    window.open(link, '_blank', 'noopener,noreferrer');
+}
 
 </script>
 </body>

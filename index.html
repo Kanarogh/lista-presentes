@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lista de Presentes - Chá de Casa Nova</title>
   <script src="https://cdn.tailwindcss.com"></script>
- <style>
+<style>
     body {
         box-sizing: border-box;
         font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
@@ -23,17 +23,49 @@
     .item-card {
         background-color: white;
         border: 1px solid #e5e7eb;
-        border-radius: 1rem; /* bordas mais arredondadas */
-        padding: 1.5rem; /* mais espaço interno */
+        border-radius: 1rem;
+        padding: 1.5rem;
         transition: all 0.3s ease;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        position: relative; /* MUITO IMPORTANTE: Para posicionar os controles de admin */
     }
 
     .item-card:hover {
         transform: translateY(-4px);
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    /* NOVO: Estilos para o painel de controles do admin */
+    .admin-controls {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        display: flex;
+        gap: 0.5rem;
+        background-color: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(4px);
+        border-radius: 9999px;
+        padding: 0.25rem;
+        opacity: 0; /* Começa invisível */
+        transition: opacity 0.2s ease-in-out;
+    }
+
+    /* NOVO: Lógica para mostrar os controles no hover (apenas para admin) */
+    .item-card:hover .admin-controls {
+        opacity: 1;
+    }
+
+    .admin-btn {
+        background-color: #f3f4f6;
+        border-radius: 50%;
+        padding: 0.5rem;
+        line-height: 1;
+        transition: background-color 0.2s;
+    }
+    .admin-btn:hover {
+        background-color: #e5e7eb;
     }
 
     .category-tag {
@@ -85,8 +117,6 @@
         border-color: #9ca3af;
     }
 
-
-
     .mode-toggle {
         position: fixed;
         top: 20px;
@@ -101,6 +131,18 @@
     .user-mode .admin-only {
         display: none;
     }
+    /* Adicione estes estilos no final do seu CSS */
+    #reserveModal.visible {
+        display: flex;
+        opacity: 1;
+    }
+    #reserveModal.visible > div {
+        transform: scale(1);
+    }/* Adicione esta nova classe ao seu CSS */
+.reserved-card {
+    background-color: #f0fdf4; /* Verde claro, combinando com o fundo */
+    border-color: #bbf7d0;   /* Uma borda verde um pouco mais escura para destacar */
+}
 </style>
 </head>
 
@@ -225,15 +267,36 @@
         </form>
       </div>
     </div>
+    <div id="reserveModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 transition-opacity duration-300">
+      <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md transform transition-transform duration-300 scale-95">
+        <h3 class="text-2xl font-bold text-green-800 mb-2">Confirmar Reserva</h3>
+        <p class="text-gray-600 mb-6">Que ótimo que você escolheu este presente! Por favor, insira seu nome para que os outros convidados saibam.</p>
+        <form id="reserveForm" class="space-y-4">
+          <input type="hidden" id="reserveGiftId">
+          <div>
+            <label for="buyerName" class="block text-sm font-medium text-gray-700 mb-1">Seu nome</label>
+            <input type="text" id="buyerName" required placeholder="Digite seu nome aqui..."
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+          </div>
+          <div class="flex gap-3 pt-4">
+            <button type="button" onclick="hideReserveModal()" class="secondary-button">
+              Cancelar
+            </button>
+            <button type="submit" class="primary-button">
+              ✔️ Confirmar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </main>
 
  <script type="module">
-    // Importa as funções que vamos usar
+    // --- IMPORTAÇÕES E CONFIGURAÇÃO DO FIREBASE (permanecem iguais) ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
     import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
-    // --- SUA CONFIGURAÇÃO DO FIREBASE (já está correta) ---
     const firebaseConfig = {
         apiKey: "AIzaSyDHzO4EEriWRsbIwW6Dry0pQAww4e4d3-c",
         authDomain: "lista-de-presentes-e3c02.firebaseapp.com",
@@ -244,38 +307,37 @@
         measurementId: "G-N421XQHTF8"
     };
 
-    // Inicializa Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
     const categoryEmojis = {
-    Cozinha: "🍳", Sala: "🛋", Quarto: "🛏", Banheiro: "🚿",
-    Decoração: "🎨", Limpeza: "🧽", Outros: "📦"
-};
-    // --- CONFIGURAÇÃO ---
-    const ADMIN_EMAIL = "admin@gmail.com"; // <-- SEU EMAIL DE ADMIN
+        Cozinha: "🍳", Sala: "🛋", Quarto: "🛏", Banheiro: "🚿",
+        Decoração: "🎨", Limpeza: "🧽", Outros: "📦"
+    };
 
+    const ADMIN_EMAIL = "admin@gmail.com";
     let gifts = [];
     let isAdminMode = false;
 
-    // Elementos da página
+    // --- ELEMENTOS DA PÁGINA ---
     const body = document.getElementById('mainBody');
     const modeToggle = document.getElementById('modeToggle');
     const modeIndicator = document.getElementById('modeIndicator');
+    const reserveModal = document.getElementById('reserveModal');
+    const reserveForm = document.getElementById('reserveForm');
 
-    // Listener de Autenticação
+    // --- LÓGICA DE AUTENTICAÇÃO (permanece igual) ---
     onAuthStateChanged(auth, user => {
-        if (user && user.email === ADMIN_EMAIL) {
-            isAdminMode = true;
-            body.classList.remove('user-mode');
+        isAdminMode = user && user.email === ADMIN_EMAIL;
+        body.classList.toggle('user-mode', !isAdminMode);
+
+        if (isAdminMode) {
             modeIndicator.innerHTML = '🔧 Modo Administrador - Você pode editar a lista';
             modeIndicator.className = 'mt-4 inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium';
             modeToggle.innerHTML = '🚪 Sair';
             modeToggle.onclick = logout;
         } else {
-            isAdminMode = false;
-            body.classList.add('user-mode');
             modeIndicator.innerHTML = '👁 Modo Visualização - Lista somente leitura';
             modeIndicator.className = 'mt-4 inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium';
             modeToggle.innerHTML = '👤 Login Admin';
@@ -284,17 +346,53 @@
         fetchGifts();
     });
 
-    // --- FUNÇÕES DE DADOS (COM A NOVA LÓGICA) ---
+    // --- NOVAS FUNÇÕES PARA CONTROLAR O MODAL ---
+    window.showReserveModal = function(giftId) {
+        document.getElementById('reserveGiftId').value = giftId;
+        reserveModal.classList.remove('hidden');
+        setTimeout(() => reserveModal.classList.add('visible'), 10); // Para a animação funcionar
+    }
 
+    window.hideReserveModal = function() {
+        reserveModal.classList.remove('visible');
+        setTimeout(() => reserveModal.classList.add('hidden'), 300); // Espera a animação terminar
+    }
+
+    // Função que é chamada ao enviar o formulário do modal
+    async function handleReservationSubmit(event) {
+        event.preventDefault();
+        const giftId = document.getElementById('reserveGiftId').value;
+        const buyerName = document.getElementById('buyerName').value;
+
+        if (buyerName && buyerName.trim() !== "") {
+            try {
+                const giftDoc = doc(db, 'gifts', giftId);
+                await updateDoc(giftDoc, {
+                    purchased: true,
+                    purchasedBy: buyerName.trim()
+                });
+                hideReserveModal();
+                fetchGifts();
+            } catch (error) {
+                console.error("Erro ao marcar como comprado: ", error);
+                alert("Ocorreu um erro. Tente novamente.");
+            }
+        }
+    }
+
+    // Conecta a função de submit ao formulário
+    reserveForm.addEventListener('submit', handleReservationSubmit);
+
+
+    // --- FUNÇÕES DE DADOS (função markAsPurchased foi removida e sua lógica movida para handleReservationSubmit) ---
     async function fetchGifts() {
+        // ... (esta função permanece exatamente igual)
         const giftList = document.getElementById('giftList');
         giftList.innerHTML = 'Carregando presentes...';
-
         try {
             const giftsCollection = collection(db, 'gifts');
             const snapshot = await getDocs(giftsCollection);
-            gifts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            // Ordena a lista para que os itens não comprados apareçam primeiro
+            gifts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
             gifts.sort((a, b) => a.purchased - b.purchased);
             renderGifts();
         } catch (error) {
@@ -303,77 +401,9 @@
         }
     }
 
-    // Adiciona os novos campos por padrão
-    window.addItem = async function (event) {
-        event.preventDefault();
-        if (!isAdminMode) return;
 
-        const name = document.getElementById('itemName').value;
-        const link = document.getElementById('itemLink').value;
-        const category = document.getElementById('itemCategory').value;
-
-        try {
-            await addDoc(collection(db, 'gifts'), {
-                name,
-                link,
-                category,
-                purchased: false, // NOVO CAMPO
-                purchasedBy: ""   // NOVO CAMPO
-            });
-            hideAddForm();
-            fetchGifts();
-        } catch (error) {
-            console.error("Erro ao adicionar item: ", error);
-        }
-    }
-
-    // NOVO: Função para o usuário marcar como comprado
-    window.markAsPurchased = async function (id) {
-        const buyerName = prompt("Que legal! Para evitar presentes repetidos, por favor, digite seu nome:", "");
-
-        if (buyerName && buyerName.trim() !== "") {
-            try {
-                const giftDoc = doc(db, 'gifts', id);
-                await updateDoc(giftDoc, {
-                    purchased: true,
-                    purchasedBy: buyerName.trim()
-                });
-                fetchGifts(); // Atualiza a lista para todos verem
-            } catch (error) {
-                console.error("Erro ao marcar como comprado: ", error);
-                alert("Ocorreu um erro. Tente novamente.");
-            }
-        } else {
-            alert("O nome é necessário para marcar o presente.");
-        }
-    }
-
-    // NOVO: Função para o admin desfazer a compra
-    window.togglePurchasedStatus = async function (id, currentStatus) {
-        if (!isAdminMode) return;
-
-        const newStatus = !currentStatus;
-        const confirmationText = newStatus
-            ? "Tem certeza que deseja marcar este item como 'comprado' manualmente?"
-            : "Tem certeza que deseja reverter este item para 'não comprado'?";
-
-        if (confirm(confirmationText)) {
-            try {
-                const giftDoc = doc(db, 'gifts', id);
-                await updateDoc(giftDoc, {
-                    purchased: newStatus,
-                    purchasedBy: newStatus ? "Admin" : ""
-                });
-                fetchGifts();
-            } catch (error) {
-                console.error("Erro ao alterar status: ", error);
-            }
-        }
-    }
-
-    // --- FUNÇÕES DE INTERFACE (COM A LÓGICA DE COMPRA MELHORADA) ---
-
-    // SUBSTITUA A SUA FUNÇÃO ANTIGA POR ESTA VERSÃO ATUALIZADA
+    // --- FUNÇÃO RENDER GIFTS ATUALIZADA ---
+   // SUBSTITUA A SUA FUNÇÃO ANTIGA POR ESTA VERSÃO ATUALIZADA
 function renderGifts() {
     const giftList = document.getElementById('giftList');
     giftList.innerHTML = '';
@@ -385,48 +415,52 @@ function renderGifts() {
 
     gifts.forEach(gift => {
         const giftCard = document.createElement('div');
-        giftCard.className = 'item-card';
 
-        // Lógica para o estado "Reservado" (VISUAL ATUALIZADO)
-        if (gift.purchased) {
-            giftCard.style.backgroundColor = '#f9fafb'; // Fundo levemente cinza
-            giftCard.innerHTML = `
-                <div class="flex-grow">
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="category-tag">${categoryEmojis[gift.category] || '🎁'} ${gift.category}</span>
-                        ${isAdminMode ? `<button onclick="editItem('${gift.id}')" class="text-gray-400 hover:text-green-600 p-1">✏️</button>` : ''}
-                    </div>
-                    <h3 class="text-lg font-semibold text-gray-500">${gift.name}</h3>
-                </div>
-                <div class="mt-4 pt-4 border-t border-gray-200">
-                    <p class="text-center text-sm text-gray-700">
-                        🎁 Reservado por <strong>${gift.purchasedBy}</strong>
-                    </p>
-                    ${isAdminMode ? `<button onclick="togglePurchasedStatus('${gift.id}', ${gift.purchased})" class="text-sm text-blue-500 hover:underline mt-3 w-full text-center">Reverter Status</button>` : ''}
+        // MUDANÇA PRINCIPAL AQUI: Adiciona a classe .reserved-card se o item estiver comprado
+        giftCard.className = `item-card ${gift.purchased ? 'reserved-card' : ''}`;
+
+        let adminControlsHTML = '';
+        if (isAdminMode) {
+            adminControlsHTML = `
+                <div class="admin-controls">
+                    <button onclick="editItem('${gift.id}')" class="admin-btn text-gray-500 hover:text-blue-600" title="Editar">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/></svg>
+                    </button>
+                    <button onclick="deleteItem('${gift.id}')" class="admin-btn text-gray-500 hover:text-red-600" title="Excluir">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
+                    </button>
                 </div>
             `;
         }
-        // Lógica para o estado "Disponível" (sem alterações)
-        else {
+
+        if (gift.purchased) {
+            // A linha que mudava o background-color foi REMOVIDA daqui, pois agora a classe CSS faz o trabalho
             giftCard.innerHTML = `
+                ${adminControlsHTML}
                 <div class="flex-grow">
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="category-tag">${categoryEmojis[gift.category] || '🎁'} ${gift.category}</span>
-                        ${isAdminMode ? `<button onclick="editItem('${gift.id}')" class="text-gray-400 hover:text-green-600 p-1">✏️</button>` : ''}
-                    </div>
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">${gift.name}</h3>
+                    <span class="category-tag">${categoryEmojis[gift.category] || '🎁'} ${gift.category}</span>
+                    <h3 class="text-lg font-semibold text-gray-500 mt-3">${gift.name}</h3>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                    <p class="text-center text-sm text-gray-700">🎁 Reservado por <strong>${gift.purchasedBy}</strong></p>
+                    ${isAdminMode ? `<button onclick="togglePurchasedStatus('${gift.id}', ${gift.purchased})" class="text-sm text-blue-500 hover:underline mt-3 w-full text-center">Reverter Status</button>` : ''}
+                </div>
+            `;
+        } else {
+            giftCard.innerHTML = `
+                ${adminControlsHTML}
+                <div class="flex-grow">
+                    <span class="category-tag">${categoryEmojis[gift.category] || '🎁'} ${gift.category}</span>
+                    <h3 class="text-lg font-semibold text-gray-800 mt-3 mb-4">${gift.name}</h3>
                 </div>
                 <div class="space-y-3 mt-4">
                     <button onclick="openStoreLink('${gift.link}')" class="secondary-button">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"/><path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/></svg>
                         <span>Ver Sugestão na Loja</span>
                     </button>
-                    <button onclick="markAsPurchased('${gift.id}')" class="primary-button">
+                    <button onclick="showReserveModal('${gift.id}')" class="primary-button">
                         <span>✨ Reservar presente</span>
                     </button>
-                    <div class="flex justify-end w-full">
-                        ${isAdminMode ? `<button onclick="deleteItem('${gift.id}')" class="text-red-400 hover:text-red-600 p-2">🗑️</button>` : ''}
-                    </div>
                 </div>
             `;
         }
@@ -434,48 +468,72 @@ function renderGifts() {
     });
 }
 
+    // --- FUNÇÕES AUXILIARES (todo o resto permanece igual) ---
+    window.logout = function() { signOut(auth); };
+    window.showAddForm = function() { if (isAdminMode) document.getElementById('addForm').classList.remove('hidden'); };
+    // ... e todas as outras funções que você já tem (deleteItem, updateItem, etc.) ...
     // --- FUNÇÕES AUXILIARES (permanecem as mesmas) ---
-    window.logout = function() { signOut(auth); }
-    window.showAddForm = function() { if (isAdminMode) document.getElementById('addForm').classList.remove('hidden'); }
-    window.hideAddForm = function() { document.getElementById('addForm').classList.add('hidden'); document.getElementById('addForm').querySelector('form').reset(); }
-    window.hideEditModal = function() { document.getElementById('editModal').classList.add('hidden'); }
-    window.updateItem = async function(event) {
-        event.preventDefault();
-        if (!isAdminMode) return;
-        const id = document.getElementById('editItemId').value;
-        const name = document.getElementById('editItemName').value;
-        const link = document.getElementById('editItemLink').value;
-        const category = document.getElementById('editItemCategory').value;
-        try {
-            await updateDoc(doc(db, 'gifts', id), { name, link, category });
-            hideEditModal();
-            fetchGifts();
-        } catch (error) { console.error("Erro ao atualizar item: ", error); }
+    window.addItem = async function (event) {
+        event.preventDefault();
+        if (!isAdminMode) return;
+        const name = document.getElementById('itemName').value;
+        const link = document.getElementById('itemLink').value;
+        const category = document.getElementById('itemCategory').value;
+        try {
+            await addDoc(collection(db, 'gifts'), { name, link, category, purchased: false, purchasedBy: ""});
+            hideAddForm();
+            fetchGifts();
+        } catch (error) { console.error("Erro ao adicionar item: ", error); }
+    }
+    window.togglePurchasedStatus = async function (id, currentStatus) {
+        if (!isAdminMode) return;
+        const newStatus = !currentStatus;
+        const confirmationText = newStatus ? "Marcar como 'comprado'?" : "Reverter para 'não comprado'?";
+        if (confirm(confirmationText)) {
+            try {
+                await updateDoc(doc(db, 'gifts', id), { purchased: newStatus, purchasedBy: newStatus ? "Admin" : ""});
+                fetchGifts();
+            } catch (error) { console.error("Erro ao alterar status: ", error); }
+        }
+    }
+    window.hideAddForm = function() { document.getElementById('addForm').classList.add('hidden'); document.getElementById('addForm').querySelector('form').reset(); }
+    window.hideEditModal = function() { document.getElementById('editModal').classList.add('hidden'); }
+    window.updateItem = async function(event) {
+        event.preventDefault();
+        if (!isAdminMode) return;
+        const id = document.getElementById('editItemId').value;
+        const name = document.getElementById('editItemName').value;
+        const link = document.getElementById('editItemLink').value;
+        const category = document.getElementById('editItemCategory').value;
+        try {
+            await updateDoc(doc(db, 'gifts', id), { name, link, category });
+            hideEditModal();
+            fetchGifts();
+        } catch (error) { console.error("Erro ao atualizar item: ", error); }
+    }
+    window.deleteItem = async function(id) {
+        if (!isAdminMode) return;
+        if (confirm("Tem certeza?")) {
+            try {
+                await deleteDoc(doc(db, 'gifts', id));
+                fetchGifts();
+            } catch (error) { console.error("Erro ao deletar item: ", error); }
+        }
+    }
+    window.editItem = function(id) {
+        if (!isAdminMode) return;
+        const gift = gifts.find(g => g.id === id);
+        if (gift) {
+            document.getElementById('editItemId').value = id;
+            document.getElementById('editItemName').value = gift.name;
+            document.getElementById('editItemLink').value = gift.link;
+            document.getElementById('editItemCategory').value = gift.category;
+            document.getElementById('editModal').classList.remove('hidden');
+        }
+    }
+    window.openStoreLink = function(link) {
+        window.open(link, '_blank', 'noopener,noreferrer');
     }
-    window.deleteItem = async function(id) {
-        if (!isAdminMode) return;
-        if (confirm("Tem certeza?")) {
-            try {
-                await deleteDoc(doc(db, 'gifts', id));
-                fetchGifts();
-            } catch (error) { console.error("Erro ao deletar item: ", error); }
-        }
-    }
-    window.editItem = function(id) {
-        if (!isAdminMode) return;
-        const gift = gifts.find(g => g.id === id);
-        if (gift) {
-            document.getElementById('editItemId').value = id;
-            document.getElementById('editItemName').value = gift.name;
-            document.getElementById('editItemLink').value = gift.link;
-            document.getElementById('editItemCategory').value = gift.category;
-            document.getElementById('editModal').classList.remove('hidden');
-        }
-    }
-    window.openStoreLink = function(link) {
-    window.open(link, '_blank', 'noopener,noreferrer');
-}
-
 </script>
 </body>
 

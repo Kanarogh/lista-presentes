@@ -366,23 +366,48 @@
         const giftId = document.getElementById('reserveGiftId').value;
         const buyerName = document.getElementById('buyerName').value;
 
-        if (buyerName && buyerName.trim() !== "") {
-            try {
-                const giftDoc = doc(db, 'gifts', giftId);
-                await updateDoc(giftDoc, {
+        if (!buyerName || buyerName.trim() === "") {
+            alert("Por favor, preencha seu nome.");
+            return;
+        }
+
+        const giftRef = doc(db, 'gifts', giftId);
+
+        try {
+            await runTransaction(db, async (transaction) => {
+                const giftDoc = await transaction.get(giftRef);
+
+                if (!giftDoc.exists()) {
+                    throw "Este presente não existe mais na lista.";
+                }
+
+                const giftData = giftDoc.data();
+
+                // A verificação principal: o presente já foi comprado?
+                if (giftData.purchased) {
+                    // Se sim, geramos um erro específico que será capturado pelo bloco catch
+                    throw "Oops! Parece que outra pessoa acabou de reservar este presente. Por favor, escolha outro. 😊";
+                }
+
+                // Se não, nós atualizamos o documento dentro da transação
+                transaction.update(giftRef, {
                     purchased: true,
                     purchasedBy: buyerName.trim()
                 });
-                hideReserveModal();
-                fetchGifts();
-            } catch (error) {
-                console.error("Erro ao marcar como comprado: ", error);
-                alert("Ocorreu um erro. Tente novamente.");
-            }
+            });
+
+            // Se a transação for bem-sucedida
+            hideReserveModal();
+            fetchGifts();
+
+        } catch (error) {
+            // Aqui capturamos o erro, seja o nosso erro personalizado ou um erro do Firebase
+            console.error("Erro na transação de reserva: ", error);
+            alert(error); // Mostra a mensagem de erro amigável para o usuário
+            hideReserveModal();
+            fetchGifts(); // Atualiza a lista para mostrar que o item foi reservado por outra pessoa
         }
     }
-
-    // Conecta a função de submit ao formulário
     reserveForm.addEventListener('submit', handleReservationSubmit);
 
 

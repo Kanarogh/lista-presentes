@@ -105,7 +105,14 @@ body {
     background-repeat: no-repeat;
     background-size: 1.5em 1.5em;
 }
+filter-inputs {
+    display: flex;
+    flex-direction: column; /* Empilha um em cima do outro */
+    gap: 1rem; /* O espaçamento que estava faltando (aprox. 16px) */
+    width: 100%;
+}
 
+/* --- MANTENHA O @MEDIA ASSIM --- */
 @media (min-width: 768px) {
     .filter-bar {
         flex-direction: row;
@@ -113,10 +120,12 @@ body {
         justify-content: space-between;
         padding: 0.75rem 1.5rem;
     }
+    
     .filter-inputs {
-        display: flex;
-        gap: 1rem;
+        /* No computador, muda para linha (um ao lado do outro) */
+        flex-direction: row; 
         min-width: 60%;
+        /* O gap de 1rem já foi herdado da regra acima */
     }
 }
 

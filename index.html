@@ -6,829 +6,119 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lista de Presentes - Chá de Casa Nova</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    /* --- ESTILOS GERAIS --- */
-    body {
-      box-sizing: border-box;
-      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-    }
-
-    .gradient-bg {
-      background: linear-gradient(135deg, #f8fffe 0%, #f0fdf4 100%);
-    }
-
-    /* --- CARDS --- */
-    .item-card {
-      background-color: white;
-      border: 1px solid #e5e7eb;
-      border-radius: 1rem;
-      transition: all 0.3s ease;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .item-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-    }
-
-    .card-image-container {
-      width: 100%;
-      height: 200px;
-      background-color: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      border-bottom: 1px solid #e5e7eb;
-      position: relative;
-      padding: 1rem;
-    }
-
-    .card-image {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-      transition: transform 0.5s ease;
-    }
-    
-    .item-card:hover .card-image {
-      transform: scale(1.05);
-    }
-
-    .card-content {
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
-      justify-content: space-between;
-    }
-
-    /* --- BOTÕES ADMIN --- */
-    .admin-controls {
-      position: absolute;
-      top: 0.75rem;
-      right: 0.75rem;
-      display: flex;
-      gap: 0.5rem;
-      background-color: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(4px);
-      border-radius: 9999px;
-      padding: 0.25rem;
-      z-index: 10;
-      opacity: 0;
-      transition: opacity 0.2s ease-in-out;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    .item-card:hover .admin-controls {
-      opacity: 1;
-    }
-
-    .admin-btn {
-      background-color: #f3f4f6;
-      border-radius: 50%;
-      padding: 0.5rem;
-      line-height: 1;
-      transition: background-color 0.2s;
-      cursor: pointer;
-    }
-
-    .admin-btn:hover {
-      background-color: #e5e7eb;
-    }
-
-    /* --- TAGS E PREÇO --- */
-    .category-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background-color: #ecfdf5;
-      color: #065f46;
-      padding: 0.25rem 0.75rem;
-      border-radius: 9999px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .price-tag {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #16a34a;
-    }
-
-    /* --- BOTÕES PRINCIPAIS --- */
-    .primary-button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      width: 100%;
-      background-color: #22c55e;
-      color: white;
-      font-weight: 600;
-      padding: 0.75rem 1rem;
-      border-radius: 0.5rem;
-      transition: all 0.2s ease;
-    }
-
-    .primary-button:hover {
-      background-color: #16a34a;
-      transform: scale(1.02);
-    }
-
-    .secondary-button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      width: 100%;
-      background-color: transparent;
-      color: #4b5563;
-      font-weight: 500;
-      padding: 0.75rem 1rem;
-      border-radius: 0.5rem;
-      border: 1px solid #d1d5db;
-      transition: all 0.2s ease;
-    }
-
-    .secondary-button:hover {
-      background-color: #f9fafb;
-      border-color: #9ca3af;
-    }
-
-    /* --- MODAIS E LAYOUT --- */
-    .mode-toggle {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 100;
-    }
-
-    .admin-only { display: block; }
-    .user-mode .admin-only { display: none; }
-
-    #reserveModal.visible { display: flex; opacity: 1; }
-    
-    .reserved-card {
-      background-color: #f9fafb;
-      opacity: 0.9;
-    }
-    
-    .reserved-card .card-image {
-        filter: grayscale(100%);
-        opacity: 0.6;
-    }
-
-    .card-number-badge {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background-color: rgba(34, 197, 94, 0.9);
-      color: white;
-      width: 2rem;
-      height: 2rem;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      font-size: 0.9rem;
-      border: 2px solid white;
-      z-index: 10;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .count-badge {
-      display: inline-block;
-      margin-left: 0.75rem;
-      background-color: #e7e5e4;
-      color: #57534e;
-      padding: 0.1rem 0.6rem;
-      border-radius: 9999px;
-      font-size: 0.9rem;
-      font-weight: 500;
-    }
-
-    .spinner {
-      border: 3px solid rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      border-top: 3px solid white;
-      width: 20px;
-      height: 20px;
-      animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    /* Novo estilo para o container de filtros */
-    /* --- BARRA DE FILTROS MODERNA --- */
-    .filter-bar {
-        background-color: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(8px); /* Efeito de vidro */
-        padding: 1rem;
-        border-radius: 1rem;
-        border: 1px solid #dcfce7; /* Borda verde bem clara */
-        margin-bottom: 2.5rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
-    }
-
-    .filter-label {
-        font-weight: 600;
-        color: #166534;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 1.1rem;
-    }
-
-    /* Estilo bonito para os Selects */
-    .modern-select {
-        appearance: none; /* Remove a seta feia padrão do navegador */
-        -webkit-appearance: none;
-        background-color: #f0fdf4;
-        border: 1px solid #bbf7d0;
-        border-radius: 0.75rem;
-        padding: 0.75rem 2.5rem 0.75rem 1rem; /* Espaço extra na direita para a seta */
-        font-size: 0.95rem;
-        color: #15803d;
-        cursor: pointer;
-        width: 100%;
-        transition: all 0.2s ease;
-        
-        /* Recriando a setinha com SVG no background */
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2316a34a' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-        background-position: right 0.5rem center;
-        background-repeat: no-repeat;
-        background-size: 1.5em 1.5em;
-    }
-
-    .modern-select:hover {
-        background-color: #ffffff;
-        border-color: #22c55e;
-        box-shadow: 0 2px 5px rgba(34, 197, 94, 0.1);
-    }
-
-    .modern-select:focus {
-        outline: none;
-        border-color: #16a34a;
-        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
-    }
-
-    @media (min-width: 768px) {
-        .filter-bar {
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.75rem 1.5rem;
-        }
-        .filter-inputs {
-            display: flex;
-            gap: 1rem;
-            min-width: 60%;
-        }
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body class="gradient-bg min-h-full" id="mainBody">
-  <div class="mode-toggle">
-    <button onclick="toggleMode()" id="modeToggle"
-      class="bg-white shadow-lg rounded-full px-4 py-2 text-sm font-medium border border-gray-200 hover:shadow-xl transition-all">
-      👤 Modo Usuário
-    </button>
+  
+  <div id="landingPage" class="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center space-y-6">
+        <div class="text-6xl mb-2">🏠</div>
+        <h1 class="text-3xl font-bold text-green-800">Chá de Casa Nova</h1>
+        <p class="text-gray-600">Seja bem-vindo(a)! Ficamos muito felizes em compartilhar esse momento com você.</p>
+        
+        <div class="space-y-3 pt-4">
+            <button onclick="openRSVPModal()" class="w-full bg-green-600 text-white py-3 px-6 rounded-xl font-bold text-lg shadow-lg hover:bg-green-700 hover:shadow-xl transition-all transform hover:-translate-y-1">
+                ✅ Confirmar Presença
+            </button>
+            <button onclick="openLoginModal()" class="w-full bg-blue-50 text-blue-700 border-2 border-blue-100 py-3 px-6 rounded-xl font-semibold hover:bg-blue-100 transition-all">
+                👋 Já confirmei, quero ver a lista
+            </button>
+            <button onclick="enterViewOnly()" class="w-full text-gray-500 py-2 hover:text-green-600 text-sm font-medium transition-colors underline">
+                Apenas dar uma espiadinha
+            </button>
+        </div>
+
+        <div class="border-t border-gray-100 pt-6 mt-6">
+            <button onclick="openPixModal()" class="text-green-600 font-semibold flex items-center justify-center gap-2 mx-auto hover:bg-green-50 px-4 py-2 rounded-lg transition-colors">
+                🎁 Enviar presente via PIX
+            </button>
+        </div>
+
+        <div class="pt-4">
+            <a href="login.html" class="text-xs text-gray-300 hover:text-gray-500">Sou Administrador</a>
+        </div>
+    </div>
   </div>
 
-  <main class="container mx-auto px-4 py-8 max-w-5xl">
-    <header class="text-center mb-12">
-      <h1 class="text-4xl font-bold text-green-800 mb-4">🏠 Lista de Presentes</h1>
-      <h2 class="text-2xl text-green-600 mb-2">Chá de Casa Nova</h2>
-      <p class="text-gray-600 max-w-2xl mx-auto">Escolha um presente especial para nossa nova casa!</p>
-
-      <div id="modeIndicator"
-        class="mt-4 inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-        🔧 Modo Administrador
+  <div id="mainContent">
+      <div class="mode-toggle">
+        <button onclick="logoutGuest()" class="bg-white shadow-lg rounded-full px-4 py-2 text-sm font-medium border border-gray-200 hover:shadow-xl transition-all text-red-500">
+          🚪 Sair
+        </button>
       </div>
-    </header>
 
-    <div class="admin-only text-center mb-8">
-      <button onclick="showAddForm()"
-        class="bg-yellow-500 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:bg-yellow-600 hover:shadow-xl transition-all duration-300">
-        ✨ Adicionar Presente
-      </button>
-    </div>
+      <main class="container mx-auto px-4 py-8 max-w-5xl">
+        <header class="text-center mb-8 relative">
+          <h1 class="text-4xl font-bold text-green-800 mb-4 mt-8">🏠 Lista de Presentes</h1>
+          <div id="guestWelcome" class="hidden mb-4 bg-green-50 inline-block px-6 py-2 rounded-full text-green-800 border border-green-200 font-semibold"></div>
+          <div id="modeIndicator" class="mt-2 inline-flex items-center px-4 py-2 bg-gray-100 text-gray-800 rounded-full text-sm font-medium"></div>
+        </header>
 
-    <div id="addForm" class="admin-only hidden bg-white rounded-2xl shadow-lg p-6 mb-8 border border-green-100 max-w-2xl mx-auto">
-      <h3 class="text-xl font-semibold text-green-800 mb-4">Adicionar Novo Presente</h3>
-      <p class="text-sm text-gray-500 mb-4 bg-blue-50 p-3 rounded text-blue-800">
-        <strong>Dica Shopee:</strong> Se a imagem não aparecer, cole manualmente o link da imagem no campo abaixo.
-      </p>
-      
-      <form onsubmit="addItem(event)" class="space-y-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label for="itemName" class="block text-sm font-medium text-gray-700 mb-1">Nome do Produto</label>
-              <input type="text" id="itemName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
-            </div>
-            <div>
-              <label for="itemPrice" class="block text-sm font-medium text-gray-700 mb-1">Valor (R$)</label>
-              <input type="text" id="itemPrice" placeholder="R$ 0,00" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" oninput="maskCurrency(this)">
-            </div>
-        </div>
-        
-        <div>
-          <label for="itemLink" class="block text-sm font-medium text-gray-700 mb-1">Link da Loja</label>
-          <input type="url" id="itemLink" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" placeholder="https://...">
-        </div>
-
-        <div>
-            <label for="itemImageManual" class="block text-sm font-medium text-gray-700 mb-1">Link da Imagem (Opcional)</label>
-            <input type="url" id="itemImageManual" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
-        </div>
-
-        <div>
-          <label for="itemCategory" class="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
-          <select id="itemCategory" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
-            <option value="Cozinha">🍳 Cozinha</option>
-            <option value="Sala">🛋 Sala</option>
-            <option value="Quarto">🛏 Quarto</option>
-            <option value="Banheiro">🚿 Banheiro</option>
-            <option value="Decoração">🎨 Decoração</option>
-            <option value="Limpeza">🧽 Limpeza</option>
-            <option value="Outros">📦 Outros</option>
-          </select>
-        </div>
-        
-        <div class="flex gap-3 pt-2">
-          <button type="submit" id="btnAddSubmit" class="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2">
-             Adicionar
+        <div class="admin-only text-center mb-8">
+          <button onclick="showAddForm()" class="bg-yellow-500 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:bg-yellow-600 hover:shadow-xl transition-all duration-300">
+            ✨ Adicionar Presente
           </button>
-          <button type="button" onclick="hideAddForm()" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors">Cancelar</button>
         </div>
-      </form>
-    </div>
 
-    <div class="filter-bar">
-        <div class="filter-label">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-            </svg>
-            Filtrar Lista
+        <div id="addForm" class="admin-only hidden bg-white rounded-2xl shadow-lg p-6 mb-8 border border-green-100 max-w-2xl mx-auto">
+          <h3 class="text-xl font-semibold text-green-800 mb-4">Adicionar Novo Presente</h3>
+          <p class="text-sm text-gray-500 mb-4">Se a busca automática falhar, use o campo de Imagem Manual.</p>
+          <form onsubmit="addItem(event)" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><label class="block text-sm font-medium text-gray-700">Nome</label><input type="text" id="itemName" required class="w-full px-4 py-2 border rounded-lg"></div>
+                <div><label class="block text-sm font-medium text-gray-700">Valor</label><input type="text" id="itemPrice" placeholder="R$ 0,00" class="w-full px-4 py-2 border rounded-lg" oninput="maskCurrency(this)"></div>
+            </div>
+            <div><label class="block text-sm font-medium text-gray-700">Link da Loja</label><input type="url" id="itemLink" required class="w-full px-4 py-2 border rounded-lg"></div>
+            <div><label class="block text-sm font-medium text-gray-700">Link Imagem (Manual)</label><input type="url" id="itemImageManual" class="w-full px-4 py-2 border rounded-lg"></div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Categoria</label>
+              <select id="itemCategory" class="w-full px-4 py-2 border rounded-lg">
+                <option value="Cozinha">🍳 Cozinha</option><option value="Sala">🛋 Sala</option><option value="Quarto">🛏 Quarto</option><option value="Banheiro">🚿 Banheiro</option><option value="Decoração">🎨 Decoração</option><option value="Limpeza">🧽 Limpeza</option><option value="Outros">📦 Outros</option>
+              </select>
+            </div>
+            <div class="flex gap-3 pt-2">
+              <button type="submit" id="btnAddSubmit" class="flex-1 bg-green-600 text-white py-2 rounded-lg">Adicionar</button>
+              <button type="button" onclick="hideAddForm()" class="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg">Cancelar</button>
+            </div>
+          </form>
         </div>
+
+        <div class="filter-bar">
+            <div class="filter-label">
+                🔍 Filtrar Lista
+            </div>
+            <div class="filter-inputs">
+                <select id="sortFilter" onchange="updateFilters()" class="modern-select">
+                    <option value="name">🔤 Nome (A-Z)</option><option value="price-asc">💰 Menor Preço</option><option value="price-desc">💎 Maior Preço</option>
+                </select>
+                <select id="categoryFilter" onchange="updateFilters()" class="modern-select">
+                    <option value="all">📂 Todas Categorias</option><option value="Cozinha">🍳 Cozinha</option><option value="Sala">🛋 Sala</option><option value="Quarto">🛏 Quarto</option><option value="Banheiro">🚿 Banheiro</option><option value="Decoração">🎨 Decoração</option><option value="Limpeza">🧽 Limpeza</option><option value="Outros">📦 Outros</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="giftListContainer" class="space-y-12">
+          <div><h2 id="available-title" class="text-2xl font-bold text-green-700 mb-6 pb-2 border-b-2 border-green-200">🎁 Disponíveis</h2><div id="availableGiftsList" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3"></div></div>
+          <div id="reservedSection"><h2 id="reserved-title" class="text-2xl font-bold text-gray-600 mb-6 pb-2 border-b-2 border-gray-300">✅ Já Reservados</h2><div id="reservedGiftsList" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3"></div></div>
+        </div>
+
+        <div id="editModal" class="admin-only hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"><div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-2xl"><form onsubmit="updateItem(event)" class="space-y-4"><input type="hidden" id="editItemId"><input type="hidden" id="editItemCurrentImg"><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="block text-sm font-medium text-gray-700">Nome</label><input type="text" id="editItemName" required class="w-full px-4 py-2 border rounded-lg"></div><div><label class="block text-sm font-medium text-gray-700">Valor</label><input type="text" id="editItemPrice" oninput="maskCurrency(this)" class="w-full px-4 py-2 border rounded-lg"></div></div><div><label class="block text-sm font-medium text-gray-700">Link</label><input type="url" id="editItemLink" required class="w-full px-4 py-2 border rounded-lg"></div><div><label class="block text-sm font-medium text-gray-700">Imagem Manual</label><input type="url" id="editItemImageManual" class="w-full px-4 py-2 border rounded-lg"></div><div><label class="block text-sm font-medium text-gray-700">Categoria</label><select id="editItemCategory" class="w-full px-4 py-2 border rounded-lg"><option value="Cozinha">🍳 Cozinha</option><option value="Sala">🛋 Sala</option><option value="Quarto">🛏 Quarto</option><option value="Banheiro">🚿 Banheiro</option><option value="Decoração">🎨 Decoração</option><option value="Limpeza">🧽 Limpeza</option><option value="Outros">📦 Outros</option></select></div><div class="flex gap-3"><button type="submit" id="btnEditSubmit" class="flex-1 bg-green-600 text-white py-2 rounded-lg">Salvar</button><button type="button" onclick="hideEditModal()" class="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg">Cancelar</button></div></form></div></div>
         
-        <div class="filter-inputs">
-            <select id="sortFilter" onchange="updateFilters()" class="modern-select">
-                <option value="name">🔤 Nome (A-Z)</option>
-                <option value="price-asc">💰 Menor Preço</option>
-                <option value="price-desc">💎 Maior Preço</option>
-            </select>
+        <div id="reserveModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"><div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md"><h3 class="text-2xl font-bold text-green-800 mb-2">Confirmar Escolha</h3><p class="text-gray-600 mb-6">Reservar como <strong id="reserveGuestNameDisplay" class="text-green-700"></strong>?</p><form id="reserveForm" class="space-y-4"><input type="hidden" id="reserveGiftId"><div class="flex gap-3 pt-4"><button type="button" onclick="hideReserveModal()" class="secondary-button">Cancelar</button><button type="submit" class="primary-button">✔️ Confirmar</button></div></form></div></div>
+      </main>
+  </div>
 
-            <select id="categoryFilter" onchange="updateFilters()" class="modern-select">
-                <option value="all">📂 Todas Categorias</option>
-                <option value="Cozinha">🍳 Cozinha</option>
-                <option value="Sala">🛋 Sala</option>
-                <option value="Quarto">🛏 Quarto</option>
-                <option value="Banheiro">🚿 Banheiro</option>
-                <option value="Decoração">🎨 Decoração</option>
-                <option value="Limpeza">🧽 Limpeza</option>
-                <option value="Outros">📦 Outros</option>
-            </select>
-        </div>
-    </div>
+  <div id="rsvpModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] p-4"><div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm"><h3 class="text-2xl font-bold text-green-800 mb-2">Confirmar Presença</h3><p class="text-gray-600 mb-4 text-sm">Digite seu nome completo.</p><form onsubmit="handleRSVP(event)" class="space-y-4"><input type="text" id="rsvpName" required placeholder="Seu nome completo" class="w-full px-4 py-3 border border-gray-300 rounded-lg"><button type="submit" class="primary-button py-3">✔️ Confirmar e Entrar</button><button type="button" onclick="closeModals()" class="secondary-button py-2 border-0">Cancelar</button></form></div></div>
+  <div id="loginGuestModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] p-4"><div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm"><h3 class="text-2xl font-bold text-blue-800 mb-2">Bem-vindo de volta!</h3><p class="text-gray-600 mb-4 text-sm">Digite o nome que você usou ao confirmar.</p><form onsubmit="handleGuestLogin(event)" class="space-y-4"><input type="text" id="loginGuestName" required placeholder="Seu nome completo" class="w-full px-4 py-3 border border-gray-300 rounded-lg"><button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold">🚀 Acessar Lista</button><button type="button" onclick="closeModals()" class="secondary-button py-2 border-0">Cancelar</button></form></div></div>
+  <div id="pixModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] p-4"><div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm text-center"><h3 class="text-xl font-bold text-gray-800 mb-2">Enviar via PIX</h3><div class="bg-gray-100 p-4 rounded-lg mb-4 break-all font-mono text-sm border border-gray-200"><span id="pixKey">SUA_CHAVE_PIX_AQUI</span></div><button onclick="copyPix()" class="text-green-600 font-semibold text-sm hover:underline mb-6">Copiar Chave</button><button type="button" onclick="closeModals()" class="secondary-button w-full">Fechar</button></div></div>
 
-    <div id="giftListContainer" class="space-y-12">
-      <div>
-        <h2 id="available-title" class="text-2xl font-bold text-green-700 mb-6 pb-2 border-b-2 border-green-200">🎁 Disponíveis para reservar</h2>
-        <div id="availableGiftsList" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3"></div>
-      </div>
-
-      <div id="reservedSection">
-        <h2 id="reserved-title" class="text-2xl font-bold text-gray-600 mb-6 pb-2 border-b-2 border-gray-300">✅ Já Reservados</h2>
-        <div id="reservedGiftsList" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3"></div>
-      </div>
-    </div>
-
-    <div id="editModal" class="admin-only hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-2xl overflow-y-auto max-h-[90vh]">
-        <h3 class="text-xl font-semibold text-green-800 mb-4">Editar Presente</h3>
-        <form onsubmit="updateItem(event)" class="space-y-4">
-          <input type="hidden" id="editItemId">
-          <input type="hidden" id="editItemCurrentImg"> 
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-                <label for="editItemName" class="block text-sm font-medium text-gray-700 mb-1">Nome</label>
-                <input type="text" id="editItemName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-            </div>
-            <div>
-                <label for="editItemPrice" class="block text-sm font-medium text-gray-700 mb-1">Valor (R$)</label>
-                <input type="text" id="editItemPrice" class="w-full px-4 py-2 border border-gray-300 rounded-lg" oninput="maskCurrency(this)">
-            </div>
-          </div>
-
-          <div>
-            <label for="editItemLink" class="block text-sm font-medium text-gray-700 mb-1">Link de Compra</label>
-            <input type="url" id="editItemLink" required class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-          </div>
-
-          <div>
-             <label for="editItemImageManual" class="block text-sm font-medium text-gray-700 mb-1">Link da Imagem (Manual)</label>
-             <input type="url" id="editItemImageManual" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-          </div>
-
-          <div>
-            <label for="editItemCategory" class="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
-            <select id="editItemCategory" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-              <option value="Cozinha">🍳 Cozinha</option>
-              <option value="Sala">🛋 Sala</option>
-              <option value="Quarto">🛏 Quarto</option>
-              <option value="Banheiro">🚿 Banheiro</option>
-              <option value="Decoração">🎨 Decoração</option>
-              <option value="Limpeza">🧽 Limpeza</option>
-              <option value="Outros">📦 Outros</option>
-            </select>
-          </div>
-          <div class="flex gap-3">
-            <button type="submit" id="btnEditSubmit" class="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700">Salvar</button>
-            <button type="button" onclick="hideEditModal()" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400">Cancelar</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <div id="reserveModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 transition-opacity duration-300">
-      <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md transform transition-transform duration-300 scale-95">
-        <h3 class="text-2xl font-bold text-green-800 mb-2">Confirmar Reserva</h3>
-        <p class="text-gray-600 mb-6">Insira seu nome para confirmar a reserva.</p>
-        <form id="reserveForm" class="space-y-4">
-          <input type="hidden" id="reserveGiftId">
-          <div>
-            <label for="buyerName" class="block text-sm font-medium text-gray-700 mb-1">Seu nome</label>
-            <input type="text" id="buyerName" required placeholder="Digite seu nome..."
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
-          </div>
-          <div class="flex gap-3 pt-4">
-            <button type="button" onclick="hideReserveModal()" class="secondary-button">Cancelar</button>
-            <button type="submit" class="primary-button">✔️ Confirmar</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </main>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-    import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc, runTransaction } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDHzO4EEriWRsbIwW6Dry0pQAww4e4d3-c",
-      authDomain: "lista-de-presentes-e3c02.firebaseapp.com",
-      projectId: "lista-de-presentes-e3c02",
-      storageBucket: "lista-de-presentes-e3c02.appspot.com",
-      messagingSenderId: "89325375943",
-      appId: "1:89325375943:web:4cca547dbfcdbc0f5909e2",
-      measurementId: "G-N421XQHTF8"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    const categoryEmojis = {
-      Cozinha: "🍳", Sala: "🛋", Quarto: "🛏", Banheiro: "🚿",
-      Decoração: "🎨", Limpeza: "🧽", Outros: "📦"
-    };
-
-    const ADMIN_EMAIL = "admin2@gmail.com";
-    let gifts = [];
-    let isAdminMode = false;
-
-    // --- VARIÁVEIS DE ESTADO PARA FILTROS ---
-    let activeSort = 'name';
-    let activeCategory = 'all';
-
-    window.maskCurrency = function(input) {
-        let value = input.value.replace(/\D/g, ""); 
-        if(value === "") { input.value = ""; return; }
-        value = (Number(value) / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-        input.value = value;
-    }
-
-    function parseCurrencyToFloat(valueStr) {
-        if (!valueStr) return 0;
-        let clean = valueStr.replace(/[^\d,]/g, '').replace(',', '.');
-        return parseFloat(clean) || 0;
-    }
-
-    function formatCurrency(value) {
-        if (value === undefined || value === null || value === '') return '';
-        return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    }
-
-    const body = document.getElementById('mainBody');
-    const modeIndicator = document.getElementById('modeIndicator');
-    const reserveModal = document.getElementById('reserveModal');
-    const reserveForm = document.getElementById('reserveForm');
-
-    onAuthStateChanged(auth, user => {
-      isAdminMode = user && user.email === ADMIN_EMAIL;
-      body.classList.toggle('user-mode', !isAdminMode);
-      const modeToggle = document.getElementById('modeToggle');
-      if (isAdminMode) {
-        modeIndicator.innerHTML = '🔧 Modo Administrador';
-        modeToggle.innerHTML = '🚪 Sair';
-        modeToggle.onclick = logout;
-      } else {
-        modeIndicator.innerHTML = '👁 Modo Visitante';
-        modeToggle.innerHTML = '👤 Sou Admin';
-        modeToggle.onclick = () => { window.location.href = 'login.html'; };
-      }
-      fetchGifts();
-    });
-
-    async function fetchMetaImage(url) {
-        try {
-            const apiUrl = `https://api.microlink.io/?url=${encodeURIComponent(url)}&palette=true`;
-            const response = await fetch(apiUrl);
-            const data = await response.json();
-            if (data.status === 'success' && data.data.image && data.data.image.url) {
-                return data.data.image.url;
-            }
-            return null;
-        } catch (error) { return null; }
-    }
-
-    window.showReserveModal = function (giftId) {
-      document.getElementById('reserveGiftId').value = giftId;
-      reserveModal.classList.remove('hidden');
-      setTimeout(() => reserveModal.classList.add('visible'), 10);
-    }
-
-    window.hideReserveModal = function () {
-      reserveModal.classList.remove('visible');
-      setTimeout(() => reserveModal.classList.add('hidden'), 300);
-    }
-
-    async function handleReservationSubmit(event) {
-      event.preventDefault();
-      const giftId = document.getElementById('reserveGiftId').value;
-      const buyerName = document.getElementById('buyerName').value;
-
-      if (!buyerName || buyerName.trim() === "") { alert("Por favor, preencha seu nome."); return; }
-
-      const giftRef = doc(db, 'gifts', giftId);
-
-      try {
-        await runTransaction(db, async (transaction) => {
-          const giftDoc = await transaction.get(giftRef);
-          if (!giftDoc.exists()) throw "Item não existe mais.";
-          const giftData = giftDoc.data();
-          if (giftData.purchased) throw "Item já reservado.";
-          transaction.update(giftRef, { purchased: true, purchasedBy: buyerName.trim() });
-        });
-        hideReserveModal();
-        fetchGifts();
-      } catch (error) {
-        alert(error);
-        hideReserveModal();
-        fetchGifts();
-      }
-    }
-    reserveForm.addEventListener('submit', handleReservationSubmit);
-
-    async function fetchGifts() {
-      const availableGiftList = document.getElementById('availableGiftsList');
-      if (availableGiftList) availableGiftList.innerHTML = '<p class="text-gray-500 col-span-full text-center py-8">Carregando...</p>';
-      try {
-        const snapshot = await getDocs(collection(db, 'gifts'));
-        gifts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-        renderGifts();
-      } catch (error) { console.error("Erro ao buscar:", error); }
-    }
-
-    // --- NOVA FUNÇÃO PARA ATUALIZAR FILTROS ---
-    window.updateFilters = function() {
-        activeSort = document.getElementById('sortFilter').value;
-        activeCategory = document.getElementById('categoryFilter').value;
-        renderGifts();
-    }
-
-    // --- RENDERIZAÇÃO INTELIGENTE COM FILTROS ---
-    function renderGifts() {
-        const availableList = document.getElementById('availableGiftsList');
-        const reservedList = document.getElementById('reservedGiftsList');
-        const availableTitle = document.getElementById('available-title');
-        const reservedTitle = document.getElementById('reserved-title');
-        const reservedSection = document.getElementById('reservedSection');
-
-        availableList.innerHTML = '';
-        reservedList.innerHTML = '';
-
-        // 1. APLICA FILTRO DE CATEGORIA
-        let filteredGifts = gifts;
-        if (activeCategory !== 'all') {
-            filteredGifts = gifts.filter(g => g.category === activeCategory);
-        }
-
-        // 2. APLICA ORDENAÇÃO
-        filteredGifts.sort((a, b) => {
-            if (activeSort === 'name') {
-                return a.name.localeCompare(b.name);
-            } else if (activeSort === 'price-asc') {
-                // Se não tem preço, considera 0 para ficar no começo/fim
-                return (a.price || 0) - (b.price || 0);
-            } else if (activeSort === 'price-desc') {
-                return (b.price || 0) - (a.price || 0);
-            }
-            return 0;
-        });
-
-        // 3. SEPARA DISPONÍVEIS E RESERVADOS
-        const availableGifts = filteredGifts.filter(gift => !gift.purchased);
-        const reservedGifts = filteredGifts.filter(gift => gift.purchased);
-
-        availableTitle.innerHTML = `🎁 Disponíveis <span class="count-badge">${availableGifts.length}</span>`;
-        reservedTitle.innerHTML = `✅ Já Reservados <span class="count-badge">${reservedGifts.length}</span>`;
-
-        const createCard = (gift, isReserved, index) => {
-            const defaultImage = "https://placehold.co/400x300/e2e8f0/94a3b8?text=Sem+Imagem";
-            const imageUrl = gift.image && gift.image.trim() !== "" ? gift.image : defaultImage;
-            const formattedPrice = gift.price ? formatCurrency(gift.price) : '';
-            
-            const adminControls = isAdminMode ? `
-                <div class="admin-controls">
-                    <button onclick="editItem('${gift.id}')" class="admin-btn text-gray-500 hover:text-blue-600">✏️</button>
-                    <button onclick="deleteItem('${gift.id}')" class="admin-btn text-gray-500 hover:text-red-600">🗑️</button>
-                </div>` : '';
-
-            return `
-                <div class="item-card ${isReserved ? 'reserved-card' : ''}">
-                    <div class="card-number-badge ${isReserved ? 'bg-gray-500 border-gray-500' : ''}">${index + 1}</div>
-                    ${adminControls}
-                    
-                    <div class="card-image-container">
-                        <img src="${imageUrl}" alt="${gift.name}" class="card-image" onerror="this.src='${defaultImage}'">
-                    </div>
-
-                    <div class="card-content">
-                        <div>
-                             <div class="flex justify-between items-start mb-2">
-                                <span class="category-tag ${isReserved ? 'bg-gray-200 text-gray-600' : ''}">${categoryEmojis[gift.category] || '📦'} ${gift.category}</span>
-                            </div>
-                            <h3 class="text-lg font-bold ${isReserved ? 'text-gray-500 line-through' : 'text-gray-800'} mb-2 leading-tight">${gift.name}</h3>
-                            ${!isReserved && formattedPrice ? `<div class="price-tag mb-4">${formattedPrice}</div>` : ''}
-                        </div>
-                        
-                        ${isReserved ? `
-                            <div class="mt-4 pt-4 border-t border-gray-200">
-                                <p class="text-center text-sm text-gray-700 bg-green-50 py-2 rounded-lg border border-green-100">
-                                    🎁 Comprado por: <br><strong>${gift.purchasedBy}</strong>
-                                </p>
-                                ${isAdminMode ? `<button onclick="togglePurchasedStatus('${gift.id}', true)" class="text-xs text-blue-500 hover:underline mt-2 w-full text-center">Desfazer Reserva</button>` : ''}
-                            </div>
-                        ` : `
-                            <div class="flex flex-col gap-2 mt-auto">
-                                <button onclick="openStoreLink('${gift.link}')" class="secondary-button w-full">🔗 Ver na Loja</button>
-                                <button onclick="showReserveModal('${gift.id}')" class="primary-button w-full">🎁 Presentear</button>
-                            </div>
-                        `}
-                    </div>
-                </div>
-            `;
-        };
-
-        if (availableGifts.length === 0 && reservedGifts.length > 0 && activeCategory === 'all') {
-             availableList.innerHTML = '<p class="text-green-700 col-span-full text-center font-medium bg-green-50 p-6 rounded-xl">✨ Todos os presentes já foram escolhidos! ✨</p>';
-        } else if (availableGifts.length === 0 && reservedGifts.length === 0) {
-             availableList.innerHTML = '<p class="text-gray-500 col-span-full text-center">Nenhum item encontrado com estes filtros.</p>';
-        } else {
-            availableGifts.forEach((gift, idx) => availableList.innerHTML += createCard(gift, false, idx));
-        }
-
-        if (reservedGifts.length > 0) {
-            reservedSection.classList.remove('hidden');
-            reservedGifts.forEach((gift, idx) => reservedList.innerHTML += createCard(gift, true, idx));
-        } else {
-            reservedSection.classList.add('hidden');
-        }
-    }
-
-    window.addItem = async function (event) {
-      event.preventDefault();
-      if (!isAdminMode) return;
-      
-      const btn = document.getElementById('btnAddSubmit');
-      const originalText = btn.innerHTML;
-      btn.innerHTML = '<div class="spinner"></div> Processando...';
-      btn.disabled = true;
-
-      const name = document.getElementById('itemName').value;
-      const link = document.getElementById('itemLink').value;
-      const category = document.getElementById('itemCategory').value;
-      const priceRaw = document.getElementById('itemPrice').value;
-      const price = parseCurrencyToFloat(priceRaw);
-      const manualImage = document.getElementById('itemImageManual').value;
-
-      let image = "";
-      if (manualImage && manualImage.trim() !== "") {
-          image = manualImage;
-      } else {
-          image = await fetchMetaImage(link);
-          if (!image) image = ""; 
-      }
-
-      try {
-        await addDoc(collection(db, 'gifts'), { 
-            name, link, category, price, image, 
-            purchased: false, purchasedBy: "" 
-        });
-        hideAddForm();
-        fetchGifts();
-      } catch (error) { 
-          console.error("Erro ao adicionar:", error);
-          alert("Erro ao salvar. Tente novamente.");
-      } finally {
-          btn.innerHTML = originalText;
-          btn.disabled = false;
-      }
-    }
-
-    window.updateItem = async function (event) {
-      event.preventDefault();
-      if (!isAdminMode) return;
-
-      const btn = document.getElementById('btnEditSubmit');
-      const originalText = btn.innerHTML;
-      btn.innerHTML = '<div class="spinner"></div> Atualizando...';
-      btn.disabled = true;
-
-      const id = document.getElementById('editItemId').value;
-      const name = document.getElementById('editItemName').value;
-      const link = document.getElementById('editItemLink').value;
-      const category = document.getElementById('editItemCategory').value;
-      const priceRaw = document.getElementById('editItemPrice').value;
-      const price = parseCurrencyToFloat(priceRaw);
-      const manualImage = document.getElementById('editItemImageManual').value;
-      const currentImage = document.getElementById('editItemCurrentImg').value;
-
-      let image = currentImage;
-      if (manualImage && manualImage.trim() !== "") {
-          image = manualImage;
-      } else {
-          if (!image || image === "") {
-             image = await fetchMetaImage(link);
-          }
-      }
-
-      try {
-        await updateDoc(doc(db, 'gifts', id), { name, link, category, price, image });
-        hideEditModal();
-        fetchGifts();
-      } catch (error) { console.error("Erro ao atualizar:", error); } finally { btn.innerHTML = originalText; btn.disabled = false; }
-    }
-
-    window.logout = function () { signOut(auth); };
-    window.showAddForm = function () { if (isAdminMode) document.getElementById('addForm').classList.remove('hidden'); };
-    window.hideAddForm = function () { document.getElementById('addForm').classList.add('hidden'); document.getElementById('addForm').querySelector('form').reset(); }
-    window.hideEditModal = function () { document.getElementById('editModal').classList.add('hidden'); }
-    
-    window.editItem = function (id) {
-      if (!isAdminMode) return;
-      const gift = gifts.find(g => g.id === id);
-      if (gift) {
-        document.getElementById('editItemId').value = id;
-        document.getElementById('editItemName').value = gift.name;
-        document.getElementById('editItemLink').value = gift.link;
-        document.getElementById('editItemCategory').value = gift.category;
-        document.getElementById('editItemPrice').value = gift.price ? formatCurrency(gift.price) : '';
-        document.getElementById('editItemImageManual').value = gift.image || ''; 
-        document.getElementById('editItemCurrentImg').value = gift.image || ''; 
-        document.getElementById('editModal').classList.remove('hidden');
-      }
-    }
-    
-    window.togglePurchasedStatus = async function (id, currentStatus) {
-      if (!isAdminMode) return;
-      try { await updateDoc(doc(db, 'gifts', id), { purchased: !currentStatus, purchasedBy: !currentStatus ? "Admin" : "" }); fetchGifts(); } catch (e) {}
-    }
-
-    window.deleteItem = async function (id) {
-      if (!isAdminMode) return;
-      if (confirm("Excluir?")) { try { await deleteDoc(doc(db, 'gifts', id)); fetchGifts(); } catch (e) {} }
-    }
-
-    window.openStoreLink = function (link) { window.open(link, '_blank', 'noopener,noreferrer'); }
-  </script>
+  <script type="module" src="app.js"></script>
 </body>
+<body class="gradient-bg min-h-full" id="mainBody">
+
+  <div id="initialLoader">
+      <div class="loader-icon">🏠</div>
+      <p class="text-green-800 font-medium animate-pulse">Carregando lista...</p>
+  </div>
 </html>

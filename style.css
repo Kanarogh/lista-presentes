@@ -126,8 +126,11 @@ filter-inputs {
         flex-direction: row; 
         min-width: 60%;
         /* O gap de 1rem já foi herdado da regra acima */
+         display: flex;
+        gap: 1rem;
     }
 }
+
 
 /* --- BOTÕES E BADGES --- */
 .admin-controls {

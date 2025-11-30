@@ -4,121 +4,193 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lista de Presentes - Chá de Casa Nova</title>
+  <title>Chá de Casa Nova - Vitória & Jhonatas</title>
+  
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  
   <link rel="stylesheet" href="style.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Playfair Display"', 'serif'],
+            sans: ['"Lato"', 'sans-serif'],
+          },
+          colors: {
+            wedding: {
+              50: '#f4f7f5',
+              100: '#e3ebe5',
+              600: '#4a7c59',
+              800: '#2d4a35',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .hero-pattern {
+      background-color: #ffffff;
+      background-image: radial-gradient(#4a7c59 0.5px, transparent 0.5px), radial-gradient(#4a7c59 0.5px, #ffffff 0.5px);
+      background-size: 24px 24px;
+      opacity: 0.08; 
+    }
+    /* Estilo para Select sem a seta padrão feia */
+    .modern-select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%234a7c59' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    }
+  </style>
 </head>
 
-<body class="gradient-bg min-h-full" id="mainBody">
+<body class="bg-wedding-50 min-h-full font-sans text-gray-700 antialiased" id="mainBody">
+
+  <div id="initialLoader">
+      <div class="text-wedding-600 animate-spin mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>
+      </div>
+      <p class="text-wedding-800 font-medium tracking-[0.2em] uppercase text-xs">Carregando</p>
+  </div>
   
-  <div id="landingPage" class="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center space-y-6">
-        <div class="text-6xl mb-2">🏠</div>
-        <h1 class="text-3xl font-bold text-green-800">Chá de Casa Nova</h1>
-        <p class="text-gray-600">Seja bem-vindo(a)! Ficamos muito felizes em compartilhar esse momento com você.</p>
+  <div id="landingPage" class="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 overflow-y-auto bg-white">
+    <div class="absolute inset-0 hero-pattern z-0 pointer-events-none"></div>
+
+    <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl p-8 md:p-12 max-w-lg w-full text-center space-y-8 border border-gray-100 z-10 relative">
+        
+        <div class="text-wedding-600 flex justify-center opacity-80">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+        </div>
+
+        <div class="space-y-3">
+            <h2 class="text-xs uppercase tracking-[0.4em] text-gray-400 font-bold">Chá de Casa Nova</h2>
+            <h1 class="text-5xl md:text-6xl font-serif text-wedding-800 leading-none">
+                Vitória <span class="text-wedding-600 font-light text-4xl">&</span> Jhonatas
+            </h1>
+        </div>
+
+        <p class="text-gray-500 font-light leading-relaxed px-2 text-sm md:text-base">
+            Estamos construindo nosso sonho. <br>
+            Sua presença é o nosso maior presente.
+        </p>
         
         <div class="space-y-3 pt-4">
-            <button onclick="openRSVPModal()" class="w-full bg-green-600 text-white py-3 px-6 rounded-xl font-bold text-lg shadow-lg hover:bg-green-700 hover:shadow-xl transition-all transform hover:-translate-y-1">
-                ✅ Confirmar Presença
+            <button onclick="openRSVPModal()" class="w-full bg-wedding-600 text-white py-4 px-6 rounded-lg font-medium text-sm tracking-wide shadow-md hover:bg-wedding-800 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-3">
+                <span>Confirmar Presença</span>
             </button>
-            <button onclick="openLoginModal()" class="w-full bg-blue-50 text-blue-700 border-2 border-blue-100 py-3 px-6 rounded-xl font-semibold hover:bg-blue-100 transition-all">
-                👋 Já confirmei, quero ver a lista
+            
+            <button onclick="openLoginModal()" class="w-full bg-transparent text-wedding-800 border border-wedding-600/30 py-3 px-6 rounded-lg font-medium text-sm hover:bg-wedding-50 transition-all tracking-wide">
+                Já confirmei, ver lista
             </button>
-            <button onclick="enterViewOnly()" class="w-full text-gray-500 py-2 hover:text-green-600 text-sm font-medium transition-colors underline">
-                Apenas dar uma espiadinha
-            </button>
-        </div>
-
-        <div class="border-t border-gray-100 pt-6 mt-6">
-            <button onclick="openPixModal()" class="text-green-600 font-semibold flex items-center justify-center gap-2 mx-auto hover:bg-green-50 px-4 py-2 rounded-lg transition-colors">
-                🎁 Enviar presente via PIX
+            
+            <button onclick="enterViewOnly()" class="w-full text-gray-400 py-2 hover:text-wedding-600 text-xs font-medium transition-colors">
+                Visualizar lista sem compromisso
             </button>
         </div>
 
-        <div class="pt-4">
-            <a href="login.html" class="text-xs text-gray-300 hover:text-gray-500">Sou Administrador</a>
+        <div class="border-t border-gray-100 pt-6">
+            <button onclick="openPixModal()" class="text-gray-400 hover:text-wedding-600 text-xs flex items-center justify-center gap-2 mx-auto transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                Opção de presente via PIX
+            </button>
+        </div>
+
+        <div class="pt-1">
+            <a href="login.html" class="text-[10px] text-gray-300 hover:text-gray-500 uppercase tracking-widest">Admin</a>
         </div>
     </div>
   </div>
 
   <div id="mainContent">
       <div class="mode-toggle">
-        <button onclick="logoutGuest()" class="bg-white shadow-lg rounded-full px-4 py-2 text-sm font-medium border border-gray-200 hover:shadow-xl transition-all text-red-500">
-          🚪 Sair
+        <button onclick="logoutGuest()" class="bg-white shadow-sm rounded-full px-5 py-2 text-xs font-bold uppercase tracking-wider border border-gray-100 hover:shadow-md transition-all text-red-400 flex items-center gap-2">
+          Sair
         </button>
       </div>
 
-      <main class="container mx-auto px-4 py-8 max-w-5xl">
-        <header class="text-center mb-8 relative">
-          <h1 class="text-4xl font-bold text-green-800 mb-4 mt-8">🏠 Lista de Presentes</h1>
-          <div id="guestWelcome" class="hidden mb-4 bg-green-50 inline-block px-6 py-2 rounded-full text-green-800 border border-green-200 font-semibold"></div>
-          <div id="modeIndicator" class="mt-2 inline-flex items-center px-4 py-2 bg-gray-100 text-gray-800 rounded-full text-sm font-medium"></div>
+      <main class="container mx-auto px-4 py-12 max-w-5xl">
+        <header class="text-center mb-12 relative">
+          <h2 class="text-xs font-bold text-wedding-600 uppercase tracking-[0.3em] mb-3">Lista de Presentes</h2>
+          <h1 class="text-4xl md:text-5xl font-serif text-wedding-800 mb-6">Vitória & Jhonatas</h1>
+          
+          <div id="guestWelcome" class="hidden mb-6 bg-wedding-50 inline-block px-6 py-2 rounded-full text-wedding-800 border border-wedding-100 text-sm font-medium"></div>
+          <div id="modeIndicator" class="mt-2 block text-gray-400 text-[10px] uppercase tracking-widest"></div>
         </header>
 
-        <div class="admin-only text-center mb-8">
-          <button onclick="showAddForm()" class="bg-yellow-500 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:bg-yellow-600 hover:shadow-xl transition-all duration-300">
-            ✨ Adicionar Presente
+        <div class="admin-only text-center mb-10">
+          <button onclick="showAddForm()" class="bg-gray-800 text-white px-6 py-3 rounded-lg text-sm font-medium shadow-lg hover:bg-black transition-all flex items-center gap-2 mx-auto">
+            <span>+ Adicionar Novo Item</span>
           </button>
         </div>
 
-        <div id="addForm" class="admin-only hidden bg-white rounded-2xl shadow-lg p-6 mb-8 border border-green-100 max-w-2xl mx-auto">
-          <h3 class="text-xl font-semibold text-green-800 mb-4">Adicionar Novo Presente</h3>
-          <p class="text-sm text-gray-500 mb-4">Se a busca automática falhar, use o campo de Imagem Manual.</p>
-          <form onsubmit="addItem(event)" class="space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label class="block text-sm font-medium text-gray-700">Nome</label><input type="text" id="itemName" required class="w-full px-4 py-2 border rounded-lg"></div>
-                <div><label class="block text-sm font-medium text-gray-700">Valor</label><input type="text" id="itemPrice" placeholder="R$ 0,00" class="w-full px-4 py-2 border rounded-lg" oninput="maskCurrency(this)"></div>
+        <div id="addForm" class="admin-only hidden bg-white rounded-xl shadow-xl p-8 mb-10 border border-gray-100 max-w-2xl mx-auto">
+          <h3 class="text-lg font-serif text-gray-800 mb-6">Novo Presente</h3>
+          <form onsubmit="addItem(event)" class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div><label class="block text-xs font-bold text-gray-500 uppercase mb-2">Nome do Produto</label><input type="text" id="itemName" required class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-wedding-600 focus:border-wedding-600 outline-none transition-all"></div>
+                <div><label class="block text-xs font-bold text-gray-500 uppercase mb-2">Valor (R$)</label><input type="text" id="itemPrice" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-wedding-600 outline-none" oninput="maskCurrency(this)"></div>
             </div>
-            <div><label class="block text-sm font-medium text-gray-700">Link da Loja</label><input type="url" id="itemLink" required class="w-full px-4 py-2 border rounded-lg"></div>
-            <div><label class="block text-sm font-medium text-gray-700">Link Imagem (Manual)</label><input type="url" id="itemImageManual" class="w-full px-4 py-2 border rounded-lg"></div>
+            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-2">Link da Loja</label><input type="url" id="itemLink" required class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-wedding-600 outline-none"></div>
+            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-2">Link Imagem (Manual)</label><input type="url" id="itemImageManual" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-wedding-600 outline-none"></div>
             <div>
-              <label class="block text-sm font-medium text-gray-700">Categoria</label>
-              <select id="itemCategory" class="w-full px-4 py-2 border rounded-lg">
-                <option value="Cozinha">🍳 Cozinha</option><option value="Sala">🛋 Sala</option><option value="Quarto">🛏 Quarto</option><option value="Banheiro">🚿 Banheiro</option><option value="Decoração">🎨 Decoração</option><option value="Limpeza">🧽 Limpeza</option><option value="Outros">📦 Outros</option>
+              <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Categoria</label>
+              <select id="itemCategory" class="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white focus:ring-1 focus:ring-wedding-600 outline-none">
+                <option value="Cozinha">Cozinha</option><option value="Sala">Sala</option><option value="Quarto">Quarto</option><option value="Banheiro">Banheiro</option><option value="Decoração">Decoração</option><option value="Limpeza">Limpeza</option><option value="Outros">Outros</option>
               </select>
             </div>
-            <div class="flex gap-3 pt-2">
-              <button type="submit" id="btnAddSubmit" class="flex-1 bg-green-600 text-white py-2 rounded-lg">Adicionar</button>
-              <button type="button" onclick="hideAddForm()" class="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg">Cancelar</button>
+            <div class="flex gap-4 pt-4">
+              <button type="submit" id="btnAddSubmit" class="flex-1 bg-wedding-600 text-white py-2 rounded-lg hover:bg-wedding-800 transition-colors">Salvar</button>
+              <button type="button" onclick="hideAddForm()" class="flex-1 bg-gray-100 text-gray-600 py-2 rounded-lg hover:bg-gray-200 transition-colors">Cancelar</button>
             </div>
           </form>
         </div>
 
-        <div class="filter-bar">
-            <div class="filter-label">
-                🔍 Filtrar Lista
-            </div>
+        <div class="filter-bar mb-10">
             <div class="filter-inputs">
-                <select id="sortFilter" onchange="updateFilters()" class="modern-select">
-                    <option value="name">🔤 Nome (A-Z)</option><option value="price-asc">💰 Menor Preço</option><option value="price-desc">💎 Maior Preço</option>
+                <select id="sortFilter" onchange="updateFilters()" class="modern-select text-sm text-gray-600">
+                    <option value="name">Ordenar por Nome</option><option value="price-asc">Menor Preço</option><option value="price-desc">Maior Preço</option>
                 </select>
-                <select id="categoryFilter" onchange="updateFilters()" class="modern-select">
-                    <option value="all">📂 Todas Categorias</option><option value="Cozinha">🍳 Cozinha</option><option value="Sala">🛋 Sala</option><option value="Quarto">🛏 Quarto</option><option value="Banheiro">🚿 Banheiro</option><option value="Decoração">🎨 Decoração</option><option value="Limpeza">🧽 Limpeza</option><option value="Outros">📦 Outros</option>
+                <select id="categoryFilter" onchange="updateFilters()" class="modern-select text-sm text-gray-600">
+                    <option value="all">Todas as Categorias</option><option value="Cozinha">Cozinha</option><option value="Sala">Sala</option><option value="Quarto">Quarto</option><option value="Banheiro">Banheiro</option><option value="Decoração">Decoração</option><option value="Limpeza">Limpeza</option><option value="Outros">Outros</option>
                 </select>
             </div>
         </div>
 
-        <div id="giftListContainer" class="space-y-12">
-          <div><h2 id="available-title" class="text-2xl font-bold text-green-700 mb-6 pb-2 border-b-2 border-green-200">🎁 Disponíveis</h2><div id="availableGiftsList" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3"></div></div>
-          <div id="reservedSection"><h2 id="reserved-title" class="text-2xl font-bold text-gray-600 mb-6 pb-2 border-b-2 border-gray-300">✅ Já Reservados</h2><div id="reservedGiftsList" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3"></div></div>
+        <div id="giftListContainer" class="space-y-16">
+          <div>
+            <h2 id="available-title" class="text-xl font-serif text-wedding-800 mb-8 flex items-center gap-3">
+                <span class="w-8 h-[1px] bg-wedding-600"></span>
+                Disponíveis
+            </h2>
+            <div id="availableGiftsList" class="grid gap-8 md:grid-cols-2 lg:grid-cols-3"></div>
+          </div>
+          
+          <div id="reservedSection">
+            <h2 id="reserved-title" class="text-xl font-serif text-gray-400 mb-8 flex items-center gap-3">
+                <span class="w-8 h-[1px] bg-gray-300"></span>
+                Já Garantidos
+            </h2>
+            <div id="reservedGiftsList" class="grid gap-8 md:grid-cols-2 lg:grid-cols-3"></div>
+          </div>
         </div>
 
-        <div id="editModal" class="admin-only hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"><div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-2xl"><form onsubmit="updateItem(event)" class="space-y-4"><input type="hidden" id="editItemId"><input type="hidden" id="editItemCurrentImg"><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="block text-sm font-medium text-gray-700">Nome</label><input type="text" id="editItemName" required class="w-full px-4 py-2 border rounded-lg"></div><div><label class="block text-sm font-medium text-gray-700">Valor</label><input type="text" id="editItemPrice" oninput="maskCurrency(this)" class="w-full px-4 py-2 border rounded-lg"></div></div><div><label class="block text-sm font-medium text-gray-700">Link</label><input type="url" id="editItemLink" required class="w-full px-4 py-2 border rounded-lg"></div><div><label class="block text-sm font-medium text-gray-700">Imagem Manual</label><input type="url" id="editItemImageManual" class="w-full px-4 py-2 border rounded-lg"></div><div><label class="block text-sm font-medium text-gray-700">Categoria</label><select id="editItemCategory" class="w-full px-4 py-2 border rounded-lg"><option value="Cozinha">🍳 Cozinha</option><option value="Sala">🛋 Sala</option><option value="Quarto">🛏 Quarto</option><option value="Banheiro">🚿 Banheiro</option><option value="Decoração">🎨 Decoração</option><option value="Limpeza">🧽 Limpeza</option><option value="Outros">📦 Outros</option></select></div><div class="flex gap-3"><button type="submit" id="btnEditSubmit" class="flex-1 bg-green-600 text-white py-2 rounded-lg">Salvar</button><button type="button" onclick="hideEditModal()" class="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg">Cancelar</button></div></form></div></div>
+        <div id="editModal" class="admin-only hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"><div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-2xl"><form onsubmit="updateItem(event)" class="space-y-4"><input type="hidden" id="editItemId"><input type="hidden" id="editItemCurrentImg"><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nome</label><input type="text" id="editItemName" required class="w-full px-4 py-2 border rounded-lg"></div><div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor</label><input type="text" id="editItemPrice" oninput="maskCurrency(this)" class="w-full px-4 py-2 border rounded-lg"></div></div><div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Link</label><input type="url" id="editItemLink" required class="w-full px-4 py-2 border rounded-lg"></div><div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Imagem Manual</label><input type="url" id="editItemImageManual" class="w-full px-4 py-2 border rounded-lg"></div><div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Categoria</label><select id="editItemCategory" class="w-full px-4 py-2 border rounded-lg"><option value="Cozinha">Cozinha</option><option value="Sala">Sala</option><option value="Quarto">Quarto</option><option value="Banheiro">Banheiro</option><option value="Decoração">Decoração</option><option value="Limpeza">Limpeza</option><option value="Outros">Outros</option></select></div><div class="flex gap-3 pt-4"><button type="submit" id="btnEditSubmit" class="flex-1 bg-wedding-600 text-white py-2 rounded-lg">Salvar Alterações</button><button type="button" onclick="hideEditModal()" class="flex-1 bg-gray-100 text-gray-600 py-2 rounded-lg">Cancelar</button></div></form></div></div>
         
-        <div id="reserveModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"><div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md"><h3 class="text-2xl font-bold text-green-800 mb-2">Confirmar Escolha</h3><p class="text-gray-600 mb-6">Reservar como <strong id="reserveGuestNameDisplay" class="text-green-700"></strong>?</p><form id="reserveForm" class="space-y-4"><input type="hidden" id="reserveGiftId"><div class="flex gap-3 pt-4"><button type="button" onclick="hideReserveModal()" class="secondary-button">Cancelar</button><button type="submit" class="primary-button">✔️ Confirmar</button></div></form></div></div>
+        <div id="reserveModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"><div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md text-center"><h3 class="text-2xl font-serif text-wedding-800 mb-2">Confirmar Escolha</h3><p class="text-gray-500 mb-6 text-sm">Reservar este item como <strong id="reserveGuestNameDisplay" class="text-wedding-600"></strong>?</p><form id="reserveForm" class="space-y-4"><input type="hidden" id="reserveGiftId"><div class="flex gap-3 pt-2"><button type="button" onclick="hideReserveModal()" class="flex-1 bg-white border border-gray-200 text-gray-600 py-2 rounded-lg hover:bg-gray-50">Cancelar</button><button type="submit" class="flex-1 bg-wedding-600 text-white font-medium py-2 rounded-lg hover:bg-wedding-800 shadow-md">Sim, Confirmar</button></div></form></div></div>
       </main>
   </div>
 
-  <div id="rsvpModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] p-4"><div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm"><h3 class="text-2xl font-bold text-green-800 mb-2">Confirmar Presença</h3><p class="text-gray-600 mb-4 text-sm">Digite seu nome completo.</p><form onsubmit="handleRSVP(event)" class="space-y-4"><input type="text" id="rsvpName" required placeholder="Seu nome completo" class="w-full px-4 py-3 border border-gray-300 rounded-lg"><button type="submit" class="primary-button py-3">✔️ Confirmar e Entrar</button><button type="button" onclick="closeModals()" class="secondary-button py-2 border-0">Cancelar</button></form></div></div>
-  <div id="loginGuestModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] p-4"><div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm"><h3 class="text-2xl font-bold text-blue-800 mb-2">Bem-vindo de volta!</h3><p class="text-gray-600 mb-4 text-sm">Digite o nome que você usou ao confirmar.</p><form onsubmit="handleGuestLogin(event)" class="space-y-4"><input type="text" id="loginGuestName" required placeholder="Seu nome completo" class="w-full px-4 py-3 border border-gray-300 rounded-lg"><button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold">🚀 Acessar Lista</button><button type="button" onclick="closeModals()" class="secondary-button py-2 border-0">Cancelar</button></form></div></div>
-  <div id="pixModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] p-4"><div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm text-center"><h3 class="text-xl font-bold text-gray-800 mb-2">Enviar via PIX</h3><div class="bg-gray-100 p-4 rounded-lg mb-4 break-all font-mono text-sm border border-gray-200"><span id="pixKey">SUA_CHAVE_PIX_AQUI</span></div><button onclick="copyPix()" class="text-green-600 font-semibold text-sm hover:underline mb-6">Copiar Chave</button><button type="button" onclick="closeModals()" class="secondary-button w-full">Fechar</button></div></div>
+  <div id="rsvpModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4"><div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-sm"><h3 class="text-2xl font-serif text-wedding-800 mb-2">Confirmar Presença</h3><p class="text-gray-500 mb-6 text-sm">Que alegria ter você conosco! Digite seu nome completo.</p><form onsubmit="handleRSVP(event)" class="space-y-4"><input type="text" id="rsvpName" required placeholder="Seu nome completo" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 focus:ring-wedding-600 outline-none transition-all"><button type="submit" class="w-full bg-wedding-600 text-white font-medium py-3 rounded-lg hover:bg-wedding-800 transition-colors shadow-md">Confirmar e Entrar</button><button type="button" onclick="closeModals()" class="w-full text-gray-400 py-2 text-xs hover:text-gray-600">Cancelar</button></form></div></div>
+  <div id="loginGuestModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4"><div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-sm"><h3 class="text-2xl font-serif text-wedding-800 mb-2">Bem-vindo de volta</h3><p class="text-gray-500 mb-6 text-sm">Digite o nome usado na confirmação.</p><form onsubmit="handleGuestLogin(event)" class="space-y-4"><input type="text" id="loginGuestName" required placeholder="Seu nome completo" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 focus:ring-wedding-600 outline-none transition-all"><button type="submit" class="w-full bg-wedding-600 text-white font-medium py-3 rounded-lg hover:bg-wedding-800 transition-colors shadow-md">Acessar Lista</button><button type="button" onclick="closeModals()" class="w-full text-gray-400 py-2 text-xs hover:text-gray-600">Cancelar</button></form></div></div>
+  <div id="pixModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4"><div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-sm text-center"><h3 class="text-xl font-serif text-wedding-800 mb-2">Presente via PIX</h3><p class="text-gray-500 text-xs mb-6">Qualquer valor ajuda na construção do nosso sonho!</p><div class="bg-gray-50 p-4 rounded-lg mb-6 break-all font-mono text-xs border border-gray-200 text-gray-600"><span id="pixKey">SUA_CHAVE_PIX_AQUI</span></div><button onclick="copyPix()" class="text-wedding-600 font-bold text-sm hover:underline mb-6 flex items-center justify-center gap-2 mx-auto">Copiar Chave</button><button type="button" onclick="closeModals()" class="w-full border border-gray-200 py-2 rounded-lg text-gray-500 text-sm hover:bg-gray-50">Fechar</button></div></div>
 
   <script type="module" src="app.js"></script>
 </body>
-<body class="gradient-bg min-h-full" id="mainBody">
-
-  <div id="initialLoader">
-      <div class="loader-icon">🏠</div>
-      <p class="text-green-800 font-medium animate-pulse">Carregando lista...</p>
-  </div>
 </html>

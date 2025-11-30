@@ -1,10 +1,10 @@
-/* --- app.js (Versão Corrigida) --- */
+/* --- app.js (Com Persistência de Login) --- */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc, runTransaction, query, where } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
-// SUAS CONFIGURAÇÕES (Mantenha as suas chaves aqui)
+// --- 1. CONFIGURAÇÕES DO FIREBASE ---
 const firebaseConfig = {
   apiKey: "AIzaSyDHzO4EEriWRsbIwW6Dry0pQAww4e4d3-c",
   authDomain: "lista-de-presentes-e3c02.firebaseapp.com",
@@ -19,30 +19,57 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// VARIÁVEIS GLOBAIS
+// --- 2. VARIÁVEIS GLOBAIS E MEMÓRIA ---
 let gifts = [];
 let isAdminMode = false;
-let currentUser = null;
+
+// MODIFICAÇÃO AQUI: Tenta recuperar o usuário da memória do navegador
+let currentUser = localStorage.getItem('weddingUser') || null; 
+
 let isViewOnly = false;
 let activeSort = 'name';
 let activeCategory = 'all';
-const ADMIN_EMAIL = "admin2@gmail.com";
-const categoryEmojis = { Cozinha: "🍳", Sala: "🛋", Quarto: "🛏", Banheiro: "🚿", Decoração: "🎨", Limpeza: "🧽", Outros: "📦" };
+const ADMIN_EMAIL = "admin@gmail.com"; 
 
-// AUTH ADMIN
+// --- 3. ÍCONES SVG ---
+const categoryIcons = {
+    "Cozinha": `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>`,
+    "Sala": `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>`,
+    "Quarto": `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>`,
+    "Banheiro": `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>`,
+    "Decoração": `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>`,
+    "Limpeza": `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" /></svg>`,
+    "Outros": `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>`
+};
+
+// --- 4. AUTENTICAÇÃO E ROTEAMENTO INTELIGENTE ---
 onAuthStateChanged(auth, user => {
-  if (user && user.email === ADMIN_EMAIL) {
+  const loader = document.getElementById('initialLoader');
+  const landing = document.getElementById('landingPage');
+  
+  if (user && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+    console.log("Admin logado");
     isAdminMode = true;
     currentUser = "Admin";
-    console.log("Admin logado");
+    if(loader) loader.style.display = 'none';
+    if(landing) landing.style.display = 'none';
     enterMainSite();
+  } 
+  // Verifica se existe usuário na variável (que veio do localStorage)
+  else if (currentUser || isViewOnly) {
+     console.log("Convidado recuperado da memória");
+     if(loader) loader.style.display = 'none';
+     if(landing) landing.style.display = 'none';
+     enterMainSite();
+  }
+  else {
+    console.log("Nenhum usuário. Mostrando capa.");
+    if(loader) loader.style.display = 'none';
+    if(landing) landing.style.display = 'flex';
   }
 });
 
-// ==========================================
-// FUNÇÕES DE JANELA (WINDOW) - MODAIS
-// ==========================================
-
+// --- 5. FUNÇÕES DE ACESSO (WINDOW) ---
 window.openRSVPModal = () => document.getElementById('rsvpModal').classList.remove('hidden');
 window.openLoginModal = () => document.getElementById('loginGuestModal').classList.remove('hidden');
 window.openPixModal = () => document.getElementById('pixModal').classList.remove('hidden');
@@ -53,132 +80,76 @@ window.closeModals = () => {
     document.getElementById('pixModal').classList.add('hidden');
 }
 
-// ==========================================
-// LÓGICA DE RSVP E LOGIN (AQUI ESTAVA O PROBLEMA)
-// ==========================================
-
-// 1. CONFIRMAR PRESENÇA
 window.handleRSVP = async (e) => {
-    if(e) e.preventDefault(); // Impede recarregar a página
-    console.log("Iniciando RSVP...");
-
-    const nameInput = document.getElementById('rsvpName');
-    const name = nameInput.value.trim();
-
+    if(e) e.preventDefault();
+    const name = document.getElementById('rsvpName').value.trim();
     if(!name) { alert("Por favor, digite seu nome."); return; }
 
     try {
-        console.log("Verificando se nome existe:", name);
-        // Cria a query para buscar o nome
         const guestsRef = collection(db, "guests");
         const q = query(guestsRef, where("name", "==", name));
         const querySnapshot = await getDocs(q);
 
         if (querySnapshot.empty) {
-            console.log("Nome novo. Salvando...");
-            // Salva no banco
-            await addDoc(guestsRef, { 
-                name: name, 
-                confirmedAt: new Date().toISOString() 
-            });
-            alert("Presença confirmada com sucesso! Bem-vindo(a).");
-        } else {
-            console.log("Nome já existe.");
-            alert("Você já tinha confirmado presença! Redirecionando...");
+            await addDoc(guestsRef, { name: name, confirmedAt: new Date().toISOString() });
         }
-
-        // Sucesso: Entra no site
+        
         currentUser = name;
+        // MODIFICAÇÃO: Salva no localStorage
+        localStorage.setItem('weddingUser', name);
+        
         isViewOnly = false;
         window.closeModals();
         enterMainSite();
-
     } catch (error) {
-        console.error("ERRO NO RSVP:", error);
-        alert("Erro ao confirmar presença:\n" + error.message + "\n\nVerifique se as Regras do Firestore estão liberadas.");
+        alert("Erro ao confirmar. Verifique sua conexão.");
+        console.error(error);
     }
 }
 
-// 2. JÁ RESERVEI (LOGIN)
 window.handleGuestLogin = async (e) => {
     if(e) e.preventDefault();
-    console.log("Iniciando Login de Convidado...");
-
-    const nameInput = document.getElementById('loginGuestName');
-    const name = nameInput.value.trim();
-
-    if(!name) { alert("Digite seu nome."); return; }
+    const name = document.getElementById('loginGuestName').value.trim();
+    if(!name) { alert("Por favor, digite seu nome."); return; }
 
     try {
-        const guestsRef = collection(db, "guests");
-        const q = query(guestsRef, where("name", "==", name));
+        const q = query(collection(db, "guests"), where("name", "==", name));
         const querySnapshot = await getDocs(q);
 
         if (querySnapshot.empty) {
-            console.log("Usuário não encontrado.");
-            alert("Não encontramos este nome na lista de confirmados.\nPor favor, confirme sua presença primeiro.");
+            alert("Nome não encontrado. Confirme sua presença primeiro.");
             window.closeModals();
             window.openRSVPModal();
-            // Preenche o nome lá no outro formulário pra facilitar
             document.getElementById('rsvpName').value = name;
         } else {
-            console.log("Usuário encontrado!");
             currentUser = name;
+            // MODIFICAÇÃO: Salva no localStorage
+            localStorage.setItem('weddingUser', name);
+            
             isViewOnly = false;
             window.closeModals();
             enterMainSite();
         }
-    } catch (error) {
-        console.error("ERRO NO LOGIN:", error);
-        alert("Erro ao verificar nome:\n" + error.message);
-    }
+    } catch (error) { console.error(error); }
 }
 
-// 3. ENTRAR SÓ PRA OLHAR
 window.enterViewOnly = () => {
-    console.log("Entrando modo espião");
     currentUser = null;
     isViewOnly = true;
     enterMainSite();
 }
-// 3. AUTHENTICAÇÃO E ROTEAMENTO INTELIGENTE
-onAuthStateChanged(auth, user => {
-  const loader = document.getElementById('initialLoader');
-  const landing = document.getElementById('landingPage');
 
-  // Verifica se é Admin (com proteção contra letras maiúsculas/minúsculas)
-  if (user && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-    console.log("Admin detectado! Redirecionando para o painel...");
-    isAdminMode = true;
-    currentUser = "Admin";
-    
-    // Remove o loader e entra direto na lista
-    if(loader) loader.style.display = 'none';
-    enterMainSite();
-  } 
-  else {
-    // Se não for admin, verifica se tem convidado "logado" na memória (navegador)
-    // Se não tiver ninguém, mostra a capa (Landing Page)
-    if (!currentUser && !isViewOnly) {
-        if(loader) loader.style.display = 'none';
-        if(landing) landing.style.display = 'flex'; // Mostra a capa agora
-    } else {
-        // Caso raro: se já tiver convidado na memória, entra direto
-        if(loader) loader.style.display = 'none';
-        enterMainSite();
-    }
-  }
-});
-// 4. SAIR
 window.logoutGuest = () => {
-    if(isAdminMode) signOut(auth);
+    if(isAdminMode) {
+        signOut(auth);
+    }
+    // MODIFICAÇÃO: Limpa a memória ao sair
+    localStorage.removeItem('weddingUser');
+    currentUser = null;
     window.location.reload();
 }
 
-// ==========================================
-// FUNÇÕES PRINCIPAIS DO SITE
-// ==========================================
-
+// --- 6. UI GERAL ---
 function enterMainSite() {
     document.getElementById('landingPage').style.display = 'none';
     document.getElementById('mainContent').style.display = 'block';
@@ -192,26 +163,23 @@ function updateUI() {
     const body = document.body;
     
     if (isAdminMode) {
-        indicator.innerHTML = '🔧 Modo Administrador';
+        indicator.innerHTML = 'Painel Administrativo';
         body.classList.remove('user-mode');
-        welcome.innerHTML = 'Olá, Admin!';
+        welcome.innerHTML = 'Modo Edição Ativo';
         welcome.classList.remove('hidden');
     } else if (currentUser) {
-        indicator.innerHTML = '✅ Presença Confirmada';
+        indicator.innerHTML = 'Acesso Confirmado';
         body.classList.add('user-mode');
-        welcome.innerHTML = `Olá, <strong>${currentUser}</strong>!`;
+        welcome.innerHTML = `Olá, ${currentUser}`;
         welcome.classList.remove('hidden');
     } else {
-        indicator.innerHTML = '👀 Apenas Espiando';
+        indicator.innerHTML = 'Apenas Visualizando';
         body.classList.add('user-mode');
         welcome.classList.add('hidden');
     }
 }
 
-// ==========================================
-// API E FIREBASE DE PRESENTES
-// ==========================================
-
+// --- 7. CARREGAMENTO E RENDERIZAÇÃO ---
 async function fetchMetaImage(url) {
     try {
         const apiUrl = `https://api.microlink.io/?url=${encodeURIComponent(url)}&palette=true`;
@@ -224,7 +192,7 @@ async function fetchMetaImage(url) {
 
 async function fetchGifts() {
     const list = document.getElementById('availableGiftsList');
-    if (list) list.innerHTML = '<p class="col-span-3 text-center text-gray-400">Carregando lista...</p>';
+    if (list) list.innerHTML = '<p class="col-span-3 text-center text-gray-400 text-sm py-8 tracking-wide">Carregando a lista...</p>';
     try {
         const snapshot = await getDocs(collection(db, 'gifts'));
         gifts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -237,8 +205,6 @@ window.updateFilters = () => {
     activeCategory = document.getElementById('categoryFilter').value;
     renderGifts();
 }
-
-// --- SUBSTITUA APENAS A FUNÇÃO renderGifts NO SEU app.js ---
 
 function renderGifts() {
     const availableList = document.getElementById('availableGiftsList');
@@ -261,84 +227,87 @@ function renderGifts() {
     const avail = filtered.filter(g => !g.purchased);
     const reserv = filtered.filter(g => g.purchased);
 
-    document.getElementById('available-title').innerHTML = `🎁 Disponíveis <span class="count-badge">${avail.length}</span>`;
-    document.getElementById('reserved-title').innerHTML = `✅ Já Reservados <span class="count-badge">${reserv.length}</span>`;
+    document.getElementById('available-title').innerHTML = `Disponíveis <span class="bg-wedding-50 text-wedding-800 text-lg font-bold px-3 py-1 rounded-full ml-2 align-middle">${avail.length}</span>`;
+    document.getElementById('reserved-title').innerHTML = `Garantidos <span class="bg-gray-100 text-gray-500 text-lg font-bold px-3 py-1 rounded-full ml-2 align-middle">${reserv.length}</span>`;
 
     const createCard = (gift, isReserved, index) => {
-        const defaultImg = "https://placehold.co/400x300/e2e8f0/94a3b8?text=Sem+Imagem";
+        const defaultImg = "https://placehold.co/400x300/f4f7f5/cbd5e1?text=Sem+Foto";
         const img = (gift.image && gift.image.trim()) ? gift.image : defaultImg;
         const price = gift.price ? gift.price.toLocaleString('pt-BR', {style:'currency', currency:'BRL'}) : '';
+        const icon = categoryIcons[gift.category] || categoryIcons["Outros"];
         
-        // Botões de Edição/Exclusão (Só aparecem para Admin)
         const adminBtns = isAdminMode ? `
             <div class="admin-controls">
-                <button onclick="editItem('${gift.id}')" class="admin-btn">✏️</button>
-                <button onclick="deleteItem('${gift.id}')" class="admin-btn">🗑️</button>
+                <button onclick="editItem('${gift.id}')" class="admin-btn text-blue-600 hover:bg-blue-50" title="Editar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                </button>
+                <button onclick="deleteItem('${gift.id}')" class="admin-btn text-red-600 hover:bg-red-50" title="Excluir">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                </button>
             </div>` : '';
 
         let actions = '';
 
         if(isReserved) {
-            // === ITEM RESERVADO ===
             const isMine = currentUser && gift.purchasedBy === currentUser;
             actions = `
-                <div class="mt-4 pt-4 border-t border-gray-100">
-                    <p class="text-xs text-center text-gray-500 bg-gray-50 p-2 rounded">Reservado por: <strong>${gift.purchasedBy}</strong></p>
-                    ${(isMine && !isAdminMode) ? `<button onclick="cancelRes('${gift.id}')" class="danger-button w-full mt-2 text-xs">Cancelar minha reserva</button>` : ''}
-                    ${isAdminMode ? `<button onclick="toggleStatus('${gift.id}', true)" class="text-xs text-blue-500 w-full mt-2 hover:underline">Admin: Liberar Item</button>` : ''}
+                <div class="mt-4 pt-4 border-t border-gray-50">
+                    <p class="text-[10px] uppercase tracking-wider text-center text-gray-400 mb-1">Reservado por</p>
+                    <p class="text-sm font-bold text-center text-wedding-800 bg-wedding-50 p-1.5 rounded">${gift.purchasedBy}</p>
+                    ${(isMine && !isAdminMode) ? `<button onclick="cancelRes('${gift.id}')" class="w-full mt-2 text-xs text-red-400 hover:text-red-600 underline">Cancelar minha reserva</button>` : ''}
+                    ${isAdminMode ? `<button onclick="toggleStatus('${gift.id}', true)" class="w-full mt-2 text-xs text-blue-400 hover:text-blue-600 underline">Admin: Liberar</button>` : ''}
                 </div>`;
         } else {
-            // === ITEM DISPONÍVEL ===
-            
             if(isAdminMode) {
-                // VISÃO DO ADMIN (O que mudamos agora)
-                // Link funciona (para testar), Botão de Presentear bloqueado (visual)
                 actions = `
-                    <div class="mt-auto pt-4 space-y-2 border-t border-dashed border-gray-200 mt-4">
-                        <p class="text-xs text-gray-400 text-center mb-1">Visão do Admin</p>
-                        <button onclick="openLink('${gift.link}')" class="secondary-button w-full hover:bg-green-50 text-green-700 border-green-200">
-                            🔗 Testar Link
-                        </button>
-                        <button disabled class="primary-button w-full opacity-40 cursor-not-allowed">
-                            🎁 Botão de Reserva (Inativo)
+                    <div class="mt-auto pt-4 space-y-2 border-t border-dashed border-gray-100 mt-4">
+                        <button onclick="openLink('${gift.link}')" class="text-xs w-full text-center text-wedding-600 hover:underline flex items-center justify-center gap-1">
+                           Testar Link <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                         </button>
                     </div>`;
             } 
             else if(isViewOnly) {
-                // VISÃO DE ESPIÃO
                 actions = `
                     <div class="mt-auto pt-4 space-y-2">
-                        <button onclick="openLink('${gift.link}')" class="secondary-button w-full">🔗 Ver Loja</button>
-                        <button disabled class="primary-button w-full opacity-50 cursor-not-allowed text-sm">🔒 Faça Login para Reservar</button>
+                        <button onclick="openLink('${gift.link}')" class="w-full py-2 border border-gray-200 text-gray-500 rounded text-sm hover:bg-gray-50 transition-colors">Ver na Loja</button>
+                        <button disabled class="w-full py-2 bg-gray-100 text-gray-400 rounded text-sm cursor-not-allowed">Login p/ Reservar</button>
                     </div>`;
             } 
             else {
-                // VISÃO DO CONVIDADO LOGADO
                 actions = `
                     <div class="mt-auto pt-4 space-y-2">
-                        <button onclick="openLink('${gift.link}')" class="secondary-button w-full">🔗 Ver Loja</button>
-                        <button onclick="openResModal('${gift.id}')" class="primary-button w-full">🎁 Presentear</button>
+                        <button onclick="openLink('${gift.link}')" class="w-full py-2 border border-gray-200 text-gray-500 rounded text-sm hover:bg-gray-50 transition-colors">Ver na Loja</button>
+                        <button onclick="openResModal('${gift.id}')" class="w-full py-2 bg-wedding-600 text-white rounded text-sm hover:bg-wedding-800 shadow-sm transition-all font-medium">Presentear</button>
                     </div>`;
             }
         }
 
         return `
-            <div class="item-card ${isReserved ? 'reserved-card' : ''}">
-                <div class="card-number-badge ${isReserved ? 'bg-gray-500 border-gray-500' : ''}">${index+1}</div>
-                ${adminBtns}
-                <div class="card-image-container"><img src="${img}" class="card-image" onerror="this.src='${defaultImg}'"></div>
-                <div class="card-content">
-                    <div>
-                        <span class="category-tag ${isReserved ? 'bg-gray-200' : ''}">${categoryEmojis[gift.category] || '📦'} ${gift.category}</span>
-                        <h3 class="text-lg font-bold mt-2 leading-tight ${isReserved?'text-gray-400 line-through':'text-gray-800'}">${gift.name}</h3>
-                        ${!isReserved && price ? `<div class="price-tag mt-1">${price}</div>` : ''}
+            <div class="item-card bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col ${isReserved ? 'opacity-80' : ''}">
+                <div class="relative">
+                    ${adminBtns}
+                    <div class="h-48 w-full bg-white flex items-center justify-center overflow-hidden p-4 border-b border-gray-50">
+                        <img src="${img}" class="max-h-full object-contain transition-transform duration-500 hover:scale-105 ${isReserved ? 'grayscale opacity-50' : ''}" onerror="this.src='${defaultImg}'">
                     </div>
+                    ${isReserved ? '<div class="absolute inset-0 flex items-center justify-center bg-white/40 backdrop-blur-[1px]"><span class="bg-gray-800 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-md">Garantido</span></div>' : ''}
+                </div>
+                
+                <div class="p-5 flex flex-col flex-grow">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="inline-flex items-center gap-1 bg-wedding-50 text-wedding-800 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md">
+                            ${icon} ${gift.category}
+                        </span>
+                    </div>
+                    
+                    <h3 class="text-base font-serif font-bold text-gray-800 leading-tight mb-1 ${isReserved?'line-through text-gray-400':''}">${gift.name}</h3>
+                    ${!isReserved && price ? `<div class="text-sm font-medium text-wedding-600 mb-2">${price}</div>` : ''}
+                    
                     ${actions}
                 </div>
             </div>`;
     };
 
-    if(avail.length === 0 && reserv.length === 0) availableList.innerHTML = '<p class="col-span-3 text-center text-gray-500">Nada encontrado.</p>';
+    if(avail.length === 0 && reserv.length === 0) availableList.innerHTML = '<p class="col-span-3 text-center text-gray-400 text-sm">Nenhum item encontrado.</p>';
     else avail.forEach((g, i) => availableList.innerHTML += createCard(g, false, i));
 
     if(reserv.length > 0) {
@@ -346,10 +315,8 @@ function renderGifts() {
         reserv.forEach((g, i) => reservedList.innerHTML += createCard(g, true, i));
     } else reservedSection.classList.add('hidden');
 }
-// ==========================================
-// FUNÇÕES AUXILIARES, CRUD E MÁSCARAS
-// ==========================================
 
+// --- 8. FUNÇÕES AUXILIARES E CRUD ---
 window.maskCurrency = (input) => {
     let v = input.value.replace(/\D/g,"");
     if(!v) return input.value="";
@@ -375,7 +342,7 @@ window.addItem = async (e) => {
     try {
         await addDoc(collection(db, 'gifts'), { name, link, category: cat, price, image, purchased: false, purchasedBy: "" });
         window.hideAddForm(); fetchGifts();
-    } catch(err) { console.error(err); alert("Erro ao adicionar: " + err.message); } 
+    } catch(err) { console.error(err); alert("Erro ao adicionar."); } 
     finally { btn.innerText = oldTxt; btn.disabled = false; }
 }
 
@@ -387,12 +354,9 @@ window.updateItem = async (e) => {
     const cat = document.getElementById('editItemCategory').value;
     const manualImg = document.getElementById('editItemImageManual').value;
     const currImg = document.getElementById('editItemCurrentImg').value;
-    
     let price = document.getElementById('editItemPrice').value.replace(/[^\d,]/g, '').replace(',', '.');
     price = parseFloat(price) || 0;
-
     let image = manualImg ? manualImg : ((!currImg) ? await fetchMetaImage(link) : currImg);
-
     try { await updateDoc(doc(db, 'gifts', id), { name, link, category: cat, price, image }); window.hideEditModal(); fetchGifts(); } catch(err){console.error(err);}
 }
 
@@ -413,10 +377,10 @@ window.editItem = (id) => {
     document.getElementById('editModal').classList.remove('hidden');
 }
 
-window.deleteItem = async (id) => { if(confirm("Excluir?")) { await deleteDoc(doc(db, 'gifts', id)); fetchGifts(); } }
+window.deleteItem = async (id) => { if(confirm("Tem certeza que deseja excluir?")) { await deleteDoc(doc(db, 'gifts', id)); fetchGifts(); } }
 window.toggleStatus = async (id, st) => { await updateDoc(doc(db, 'gifts', id), { purchased: !st, purchasedBy: !st?"Admin":"" }); fetchGifts(); }
 window.openLink = (url) => window.open(url, '_blank');
-window.copyPix = () => navigator.clipboard.writeText(document.getElementById('pixKey').innerText).then(()=>alert("Copiado!"));
+window.copyPix = () => navigator.clipboard.writeText(document.getElementById('pixKey').innerText).then(()=>alert("Chave PIX copiada!"));
 
 window.openResModal = (id) => {
     document.getElementById('reserveGiftId').value = id;
@@ -425,7 +389,6 @@ window.openResModal = (id) => {
 }
 window.hideReserveModal = () => document.getElementById('reserveModal').classList.add('hidden');
 
-// Event Listener para o Formulário de Reserva
 const reserveForm = document.getElementById('reserveForm');
 if(reserveForm) {
     reserveForm.addEventListener('submit', async (e) => {
@@ -437,17 +400,13 @@ if(reserveForm) {
                 if(d.data().purchased) throw "Já reservado.";
                 t.update(doc(db, 'gifts', id), { purchased: true, purchasedBy: currentUser });
             });
-            window.hideReserveModal(); fetchGifts(); alert("Reservado com sucesso! 🎉");
-        } catch(err) { alert(err); window.hideReserveModal(); fetchGifts(); }
+            window.hideReserveModal(); fetchGifts();
+        } catch(err) { alert("Este item já foi reservado por outra pessoa."); window.hideReserveModal(); fetchGifts(); }
     });
 }
 
 window.cancelRes = async (id) => {
     if(confirm("Tem certeza que deseja cancelar sua reserva?")) {
-        try {
-            await updateDoc(doc(db, 'gifts', id), { purchased: false, purchasedBy: "" });
-            fetchGifts();
-            alert("Reserva cancelada.");
-        } catch(err) { alert("Erro ao cancelar: " + err.message); }
+        try { await updateDoc(doc(db, 'gifts', id), { purchased: false, purchasedBy: "" }); fetchGifts(); } catch(err) { alert(err.message); }
     }
 }

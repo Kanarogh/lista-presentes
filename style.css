@@ -105,7 +105,7 @@ body {
     background-repeat: no-repeat;
     background-size: 1.5em 1.5em;
 }
-filter-inputs {
+.filter-inputs {
     display: flex;
     flex-direction: column; /* Empilha um em cima do outro */
     gap: 1rem; /* O espaçamento que estava faltando (aprox. 16px) */
@@ -126,8 +126,7 @@ filter-inputs {
         flex-direction: row; 
         min-width: 60%;
         /* O gap de 1rem já foi herdado da regra acima */
-         display: flex;
-        gap: 1rem;
+      
     }
 }
 

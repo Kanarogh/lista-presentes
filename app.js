@@ -270,7 +270,7 @@ function renderGifts() {
                 actions = `
                     <div class="mt-auto pt-4 space-y-2">
                         <button onclick="openLink('${gift.link}')" class="w-full py-2 border border-gray-200 text-gray-500 rounded text-sm hover:bg-gray-50 transition-colors">Ver na Loja</button>
-                        <button disabled class="w-full py-2 bg-gray-100 text-gray-400 rounded text-sm cursor-not-allowed">Login p/ Reservar</button>
+                        <button disabled class="w-full py-2 bg-gray-100 text-gray-400 rounded text-sm cursor-not-allowed">Confirme presença p/ Reservar</button>
                     </div>`;
             } 
             else {

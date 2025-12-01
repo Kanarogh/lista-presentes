@@ -289,7 +289,7 @@ function renderGifts() {
     const avail = filtered.filter(g => !g.purchased);
     const reserv = filtered.filter(g => g.purchased);
 
-    document.getElementById('available-title').innerHTML = `Disponíveis <span class="bg-wedding-50 text-wedding-800 text-lg font-bold px-3 py-1 rounded-full ml-2 align-middle">${avail.length}</span>`;
+    document.getElementById('available-title').innerHTML = `Disponíveis <span class="bg-wedding-50 text-wedding-800 text-lg font-bold px-3 py-1 rounded-full ml-2 align-middle">${avail.length} </span> <span > ATENÇÃO!!! Os preços podem variar de acordo com o site e o dia da compra!</span>`;
     document.getElementById('reserved-title').innerHTML = `Garantidos <span class="bg-gray-100 text-gray-500 text-lg font-bold px-3 py-1 rounded-full ml-2 align-middle">${reserv.length}</span>`;
 
     // --- MAPA DE CORES DAS ETIQUETAS ---

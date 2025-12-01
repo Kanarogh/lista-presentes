@@ -309,19 +309,39 @@ function renderGifts() {
 
         let actions = '';
 
-        if(isReserved) {
+       if(isReserved) {
             const isMine = currentUser && gift.purchasedBy === currentUser;
-            // Verifica se tem mensagem e se é admin ou o dono
+            
+            // --- LÓGICA DE PRIVACIDADE DO NOME ---
+            let labelTexto = "Status";
+            let nomeMostrado = "Já Garantido"; // Padrão para estranhos
+
+            if (isAdminMode) {
+                // Admin vê tudo
+                labelTexto = "Reservado por";
+                nomeMostrado = gift.purchasedBy; 
+            } else if (isMine) {
+                // O dono da reserva vê que foi ele
+                labelTexto = "Sua Reserva";
+                nomeMostrado = "Você";
+            }
+            // Se não for Admin nem o Dono, continua como "Já Garantido"
+
+            // Verifica se tem mensagem e se é admin (apenas admin vê a mensagem)
             const messageDisplay = (gift.guestMessage && isAdminMode) 
                 ? `<div class="mt-2 p-2 bg-yellow-50 border border-yellow-100 rounded text-xs text-gray-600 italic">"${gift.guestMessage}"</div>` 
                 : '';
 
             actions = `
                 <div class="mt-4 pt-4 border-t border-gray-50">
-                    <p class="text-[10px] uppercase tracking-wider text-center text-gray-400 mb-1">Reservado por</p>
-                    <p class="text-sm font-bold text-center text-wedding-800 bg-wedding-50 p-1.5 rounded">${gift.purchasedBy}</p>
+                    <p class="text-[10px] uppercase tracking-wider text-center text-gray-400 mb-1">${labelTexto}</p>
+                    <p class="text-sm font-bold text-center text-wedding-800 bg-wedding-50 p-1.5 rounded truncate">
+                        ${nomeMostrado}
+                    </p>
                     
-                    ${messageDisplay} ${(isMine && !isAdminMode) ? `<button onclick="cancelRes('${gift.id}')" class="w-full mt-2 text-xs text-red-400 hover:text-red-600 underline">Cancelar minha reserva</button>` : ''}
+                    ${messageDisplay} 
+                    
+                    ${(isMine && !isAdminMode) ? `<button onclick="cancelRes('${gift.id}')" class="w-full mt-2 text-xs text-red-400 hover:text-red-600 underline">Cancelar minha reserva</button>` : ''}
                     ${isAdminMode ? `<button onclick="toggleStatus('${gift.id}', true)" class="w-full mt-2 text-xs text-blue-400 hover:text-blue-600 underline">Admin: Liberar</button>` : ''}
                 </div>`;
         }else {

@@ -88,10 +88,14 @@
         </h1>
 
         <div id="countdown" class="flex justify-center gap-4 py-4 text-wedding-800">
-            <div class="text-center"><span class="block text-2xl font-bold font-serif" id="days">00</span><span class="text-[10px] uppercase tracking-wider text-gray-400">Dias</span></div>
-            <div class="text-center"><span class="block text-2xl font-bold font-serif" id="hours">00</span><span class="text-[10px] uppercase tracking-wider text-gray-400">Hrs</span></div>
-            <div class="text-center"><span class="block text-2xl font-bold font-serif" id="minutes">00</span><span class="text-[10px] uppercase tracking-wider text-gray-400">Min</span></div>
-            <div class="text-center"><span class="block text-2xl font-bold font-serif" id="seconds">00</span><span class="text-[10px] uppercase tracking-wider text-gray-400">Seg</span></div>
+          <div class="text-center"><span class="block text-2xl font-bold font-serif" id="days">00</span><span
+              class="text-[10px] uppercase tracking-wider text-gray-400">Dias</span></div>
+          <div class="text-center"><span class="block text-2xl font-bold font-serif" id="hours">00</span><span
+              class="text-[10px] uppercase tracking-wider text-gray-400">Hrs</span></div>
+          <div class="text-center"><span class="block text-2xl font-bold font-serif" id="minutes">00</span><span
+              class="text-[10px] uppercase tracking-wider text-gray-400">Min</span></div>
+          <div class="text-center"><span class="block text-2xl font-bold font-serif" id="seconds">00</span><span
+              class="text-[10px] uppercase tracking-wider text-gray-400">Seg</span></div>
         </div>
       </div>
 
@@ -136,11 +140,30 @@
   </div>
 
   <div id="mainContent">
-    <div class="mode-toggle">
+    <div class="mode-toggle absolute top-4 right-4 z-40 flex flex-col items-end gap-2">
+
       <button onclick="logoutGuest()"
-        class="bg-white shadow-sm rounded-full px-5 py-2 text-xs font-bold uppercase tracking-wider border border-gray-100 hover:shadow-md transition-all text-red-400 flex items-center gap-2">
-        Sair
+        class="bg-white/90 backdrop-blur shadow-sm rounded-full px-5 py-2 text-xs font-bold uppercase tracking-wider border border-gray-200 hover:shadow-md transition-all text-gray-600 flex items-center gap-2 group z-10">
+        <span>Sair</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor" class="group-hover:translate-x-1 transition-transform">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
       </button>
+
+      <button id="btnCancelRSVP" onclick="openCancelModal()"
+        class="hidden bg-white/40 hover:bg-red-50 backdrop-blur-sm border border-transparent hover:border-red-100 rounded-full px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-red-500 transition-all flex items-center gap-2 group">
+
+        <span>Cancelar Presença</span>
+
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor" class="opacity-70 group-hover:opacity-100">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      </button>
+
     </div>
 
     <main class="container mx-auto px-4 py-12 max-w-5xl">
@@ -156,42 +179,56 @@
 
       <div id="adminDashboard" class="admin-only hidden mb-12">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-center gap-4">
-                <div class="bg-blue-50 p-3 rounded-full text-blue-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
-                </div>
-                <div>
-                    <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">Total de Itens</p>
-                    <p class="text-2xl font-bold text-gray-800" id="dashTotalItems">0</p>
-                </div>
+          <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-center gap-4">
+            <div class="bg-blue-50 p-3 rounded-full text-blue-600">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
             </div>
-            <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-center gap-4">
-                <div class="bg-green-50 p-3 rounded-full text-green-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                </div>
-                <div>
-                    <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">Presentes Garantidos</p>
-                    <p class="text-2xl font-bold text-gray-800" id="dashTotalPurchased">0</p>
-                </div>
+            <div>
+              <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">Total de Itens</p>
+              <p class="text-2xl font-bold text-gray-800" id="dashTotalItems">0</p>
             </div>
-            <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-center gap-4">
-                <div class="bg-yellow-50 p-3 rounded-full text-yellow-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                </div>
-                <div>
-                    <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">Valor Arrecadado</p>
-                    <p class="text-2xl font-bold text-wedding-600" id="dashTotalValue">R$ 0,00</p>
-                </div>
+          </div>
+          <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-center gap-4">
+            <div class="bg-green-50 p-3 rounded-full text-green-600">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </div>
+            <div>
+              <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">Presentes Garantidos</p>
+              <p class="text-2xl font-bold text-gray-800" id="dashTotalPurchased">0</p>
+            </div>
+          </div>
+          <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-center gap-4">
+            <div class="bg-yellow-50 p-3 rounded-full text-yellow-600">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">Valor Arrecadado</p>
+              <p class="text-2xl font-bold text-wedding-600" id="dashTotalValue">R$ 0,00</p>
+            </div>
+          </div>
         </div>
-        
+
         <div class="mt-6 flex flex-col md:flex-row justify-end gap-4">
-            <button onclick="exportGuestList()" class="text-xs font-bold text-blue-600 hover:text-blue-800 uppercase tracking-widest border-b border-blue-600 hover:border-blue-800 pb-1 transition-colors flex items-center gap-2 justify-end">
-               📋 Baixar Lista de Presença
-            </button>
-            <button onclick="exportReport()" class="text-xs font-bold text-wedding-600 hover:text-wedding-800 uppercase tracking-widest border-b border-wedding-600 hover:border-wedding-800 pb-1 transition-colors flex items-center gap-2 justify-end">
-               🎁 Baixar Lista de Presentes
-            </button>
+          <button onclick="exportGuestList()"
+            class="text-xs font-bold text-blue-600 hover:text-blue-800 uppercase tracking-widest border-b border-blue-600 hover:border-blue-800 pb-1 transition-colors flex items-center gap-2 justify-end">
+            📋 Baixar Lista de Presença
+          </button>
+          <button onclick="exportReport()"
+            class="text-xs font-bold text-wedding-600 hover:text-wedding-800 uppercase tracking-widest border-b border-wedding-600 hover:border-wedding-800 pb-1 transition-colors flex items-center gap-2 justify-end">
+            🎁 Baixar Lista de Presentes
+          </button>
         </div>
       </div>
 
@@ -224,24 +261,26 @@
               type="url" id="itemImageManual"
               class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-wedding-600 outline-none">
           </div>
-          
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Detalhes (Cor / Tamanho / Voltagem)</label>
-                <input type="text" id="itemDescription" placeholder="Ex: 110v, Cor Azul, Tamanho G..."
-                  class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-wedding-600 outline-none">
-              </div>
-              <div>
-                  <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Etiqueta Especial</label>
-                  <select id="itemTag" class="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white focus:ring-1 focus:ring-wedding-600 outline-none">
-                    <option value="">Sem etiqueta</option>
-                    <option value="❤️ Amamos Muito">❤️ Amamos Muito</option>
-                    <option value="🏠 Essencial pra Casa">🏠 Essencial pra Casa</option>
-                    <option value="✨ Sonho de Consumo">✨ Sonho de Consumo</option>
-                    <option value="🍳 Mestre Cuca">🍳 Mestre Cuca</option>
-                    <option value="💡 Ideia Genial">💡 Ideia Genial</option>
-                  </select>
-              </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Detalhes (Cor / Tamanho /
+                Voltagem)</label>
+              <input type="text" id="itemDescription" placeholder="Ex: 110v, Cor Azul, Tamanho G..."
+                class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-wedding-600 outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Etiqueta Especial</label>
+              <select id="itemTag"
+                class="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white focus:ring-1 focus:ring-wedding-600 outline-none">
+                <option value="">Sem etiqueta</option>
+                <option value="❤️ Amamos Muito">❤️ Amamos Muito</option>
+                <option value="🏠 Essencial pra Casa">🏠 Essencial pra Casa</option>
+                <option value="✨ Sonho de Consumo">✨ Sonho de Consumo</option>
+                <option value="🍳 Mestre Cuca">🍳 Mestre Cuca</option>
+                <option value="💡 Ideia Genial">💡 Ideia Genial</option>
+              </select>
+            </div>
           </div>
 
           <div>
@@ -268,42 +307,46 @@
 
       <div class="filter-bar mb-10">
         <div class="w-full mb-4 md:mb-0 md:mr-4">
-            <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-                    </svg>
-                </div>
-                <input type="text" id="searchInput" oninput="updateFilters()" placeholder="Buscar presente por nome..." class="w-full pl-10 pr-4 py-2 border border-wedding-100 rounded-lg text-sm focus:ring-1 focus:ring-wedding-600 outline-none bg-wedding-50/50">
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                fill="currentColor">
+                <path fill-rule="evenodd"
+                  d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                  clip-rule="evenodd" />
+              </svg>
             </div>
+            <input type="text" id="searchInput" oninput="updateFilters()" placeholder="Buscar presente por nome..."
+              class="w-full pl-10 pr-4 py-2 border border-wedding-100 rounded-lg text-sm focus:ring-1 focus:ring-wedding-600 outline-none bg-wedding-50/50">
+          </div>
         </div>
 
         <div class="filter-inputs">
-            <select id="sortFilter" onchange="updateFilters()" class="modern-select text-sm text-gray-600">
-                <option value="name">Ordenar por Nome</option>
-                <option value="price-asc">Menor Preço</option>
-                <option value="price-desc">Maior Preço</option>
-            </select>
+          <select id="sortFilter" onchange="updateFilters()" class="modern-select text-sm text-gray-600">
+            <option value="name">Ordenar por Nome</option>
+            <option value="price-asc">Menor Preço</option>
+            <option value="price-desc">Maior Preço</option>
+          </select>
 
-            <select id="categoryFilter" onchange="updateFilters()" class="modern-select text-sm text-gray-600">
-                <option value="all">Todas as Categorias</option>
-                <option value="Cozinha">Cozinha</option>
-                <option value="Sala">Sala</option>
-                <option value="Quarto">Quarto</option>
-                <option value="Banheiro">Banheiro</option>
-                <option value="Decoração">Decoração</option>
-                <option value="Limpeza">Limpeza</option>
-                <option value="Outros">Outros</option>
-            </select>
+          <select id="categoryFilter" onchange="updateFilters()" class="modern-select text-sm text-gray-600">
+            <option value="all">Todas as Categorias</option>
+            <option value="Cozinha">Cozinha</option>
+            <option value="Sala">Sala</option>
+            <option value="Quarto">Quarto</option>
+            <option value="Banheiro">Banheiro</option>
+            <option value="Decoração">Decoração</option>
+            <option value="Limpeza">Limpeza</option>
+            <option value="Outros">Outros</option>
+          </select>
 
-            <select id="tagFilter" onchange="updateFilters()" class="modern-select text-sm text-gray-600">
-                <option value="all">Todas as Etiquetas</option>
-                <option value="❤️ Amamos Muito">❤️ Amamos Muito</option>
-                <option value="🏠 Essencial pra Casa">🏠 Essencial pra Casa</option>
-                <option value="✨ Sonho de Consumo">✨ Sonho de Consumo</option>
-                <option value="🍳 Mestre Cuca">🍳 Mestre Cuca</option>
-                <option value="💡 Ideia Genial">💡 Ideia Genial</option>
-            </select>
+          <select id="tagFilter" onchange="updateFilters()" class="modern-select text-sm text-gray-600">
+            <option value="all">Todas as Etiquetas</option>
+            <option value="❤️ Amamos Muito">❤️ Amamos Muito</option>
+            <option value="🏠 Essencial pra Casa">🏠 Essencial pra Casa</option>
+            <option value="✨ Sonho de Consumo">✨ Sonho de Consumo</option>
+            <option value="🍳 Mestre Cuca">🍳 Mestre Cuca</option>
+            <option value="💡 Ideia Genial">💡 Ideia Genial</option>
+          </select>
         </div>
       </div>
 
@@ -340,23 +383,23 @@
                 id="editItemLink" required class="w-full px-4 py-2 border rounded-lg"></div>
             <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Imagem Manual</label><input
                 type="url" id="editItemImageManual" class="w-full px-4 py-2 border rounded-lg"></div>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Detalhes (Cor / Tamanho)</label>
-                  <input type="text" id="editItemDescription" class="w-full px-4 py-2 border rounded-lg">
-                </div>
-                <div>
-                  <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Etiqueta Especial</label>
-                  <select id="editItemTag" class="w-full px-4 py-2 border rounded-lg">
-                    <option value="">Sem etiqueta</option>
-                    <option value="❤️ Amamos Muito">❤️ Amamos Muito</option>
-                    <option value="🏠 Essencial pra Casa">🏠 Essencial pra Casa</option>
-                    <option value="✨ Sonho de Consumo">✨ Sonho de Consumo</option>
-                    <option value="🍳 Mestre Cuca">🍳 Mestre Cuca</option>
-                    <option value="💡 Ideia Genial">💡 Ideia Genial</option>
-                  </select>
-                </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Detalhes (Cor / Tamanho)</label>
+                <input type="text" id="editItemDescription" class="w-full px-4 py-2 border rounded-lg">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Etiqueta Especial</label>
+                <select id="editItemTag" class="w-full px-4 py-2 border rounded-lg">
+                  <option value="">Sem etiqueta</option>
+                  <option value="❤️ Amamos Muito">❤️ Amamos Muito</option>
+                  <option value="🏠 Essencial pra Casa">🏠 Essencial pra Casa</option>
+                  <option value="✨ Sonho de Consumo">✨ Sonho de Consumo</option>
+                  <option value="🍳 Mestre Cuca">🍳 Mestre Cuca</option>
+                  <option value="💡 Ideia Genial">💡 Ideia Genial</option>
+                </select>
+              </div>
             </div>
 
             <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Categoria</label><select
@@ -385,15 +428,20 @@
               class="text-wedding-600"></strong>?</p>
           <form id="reserveForm" class="space-y-4">
             <input type="hidden" id="reserveGiftId">
-            
+
             <div class="text-left">
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Mensagem para os noivos (Opcional)</label>
-                <textarea id="reserveMessage" rows="3" placeholder="Escreva algo carinhoso..." class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-wedding-600 outline-none text-sm resize-none"></textarea>
+              <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Mensagem para os noivos
+                (Opcional)</label>
+              <textarea id="reserveMessage" rows="3" placeholder="Escreva algo carinhoso..."
+                class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-wedding-600 outline-none text-sm resize-none"></textarea>
             </div>
 
             <div class="flex gap-3 pt-2">
-                <button type="button" onclick="hideReserveModal()" class="flex-1 bg-white border border-gray-200 text-gray-600 py-2 rounded-lg hover:bg-gray-50">Cancelar</button>
-                <button type="submit" class="flex-1 bg-wedding-600 text-white font-medium py-2 rounded-lg hover:bg-wedding-800 shadow-md">Sim, Confirmar</button>
+              <button type="button" onclick="hideReserveModal()"
+                class="flex-1 bg-white border border-gray-200 text-gray-600 py-2 rounded-lg hover:bg-gray-50">Cancelar</button>
+              <button type="submit"
+                class="flex-1 bg-wedding-600 text-white font-medium py-2 rounded-lg hover:bg-wedding-800 shadow-md">Sim,
+                Confirmar</button>
             </div>
           </form>
         </div>
@@ -471,6 +519,42 @@
   </div>
   <script type="module" src="app.js"></script>
   <div id="toast-container"></div>
+
+  <div id="cancelRSVPModal"
+    class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[70] p-4">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm text-center relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-full h-1.5 bg-red-400"></div>
+
+      <div class="mx-auto w-16 h-16 bg-red-50 text-red-400 rounded-full flex items-center justify-center mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+        </svg>
+      </div>
+
+      <h3 class="text-xl font-serif text-gray-800 mb-2">Não poderá comparecer?</h3>
+
+      <p class="text-gray-500 text-sm mb-6 leading-relaxed">
+        Entendemos, imprevistos acontecem! <br>
+        Ao confirmar, seu nome sairá da lista e
+        <strong class="text-gray-700">os presentes que você reservou ficarão disponíveis</strong> para outros
+        convidados.
+      </p>
+
+      <div class="space-y-3">
+        <button onclick="confirmCancelRSVP()"
+          class="w-full bg-red-500 text-white font-bold py-3 rounded-lg hover:bg-red-600 shadow-md transition-all">
+          Sim, cancelar minha presença
+        </button>
+
+        <button onclick="closeCancelModal()"
+          class="w-full bg-white border border-gray-200 text-gray-600 font-medium py-3 rounded-lg hover:bg-gray-50 transition-colors">
+          Voltar, eu vou sim!
+        </button>
+      </div>
+    </div>
+  </div>
 </body>
 
 </html>

@@ -2,17 +2,19 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc, runTransaction, query, where } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
-
+import {
+    getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc,
+    runTransaction, query, where, writeBatch // <--- ADICIONE ISTO AQUI
+} from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 // --- 1. CONFIGURAÇÕES DO FIREBASE ---
 const firebaseConfig = {
-  apiKey: "AIzaSyDHzO4EEriWRsbIwW6Dry0pQAww4e4d3-c",
-  authDomain: "lista-de-presentes-e3c02.firebaseapp.com",
-  projectId: "lista-de-presentes-e3c02",
-  storageBucket: "lista-de-presentes-e3c02.appspot.com",
-  messagingSenderId: "89325375943",
-  appId: "1:89325375943:web:4cca547dbfcdbc0f5909e2",
-  measurementId: "G-N421XQHTF8"
+    apiKey: "AIzaSyDHzO4EEriWRsbIwW6Dry0pQAww4e4d3-c",
+    authDomain: "lista-de-presentes-e3c02.firebaseapp.com",
+    projectId: "lista-de-presentes-e3c02",
+    storageBucket: "lista-de-presentes-e3c02.appspot.com",
+    messagingSenderId: "89325375943",
+    appId: "1:89325375943:web:4cca547dbfcdbc0f5909e2",
+    measurementId: "G-N421XQHTF8"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -24,7 +26,7 @@ let gifts = [];
 let isAdminMode = false;
 
 // Recupera usuário do localStorage
-let currentUser = localStorage.getItem('weddingUser') || null; 
+let currentUser = localStorage.getItem('weddingUser') || null;
 
 let isViewOnly = false;
 let activeSort = 'name';
@@ -32,7 +34,7 @@ let activeCategory = 'all';
 let activeTag = 'all';
 let searchTerm = ''; // NOVO: Variável para busca
 
-const ADMIN_EMAIL = "admin2@gmail.com"; 
+const ADMIN_EMAIL = "admin2@gmail.com";
 const WEDDING_DATE = new Date("2026-04-11T16:00:00").getTime();
 
 // --- 3. ÍCONES SVG ---
@@ -48,28 +50,28 @@ const categoryIcons = {
 
 // --- 4. AUTENTICAÇÃO E ROTEAMENTO INTELIGENTE ---
 onAuthStateChanged(auth, user => {
-  const loader = document.getElementById('initialLoader');
-  const landing = document.getElementById('landingPage');
-  
-  if (user && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-    console.log("Admin logado");
-    isAdminMode = true;
-    currentUser = "Admin";
-    if(loader) loader.style.display = 'none';
-    if(landing) landing.style.display = 'none';
-    enterMainSite();
-  } 
-  else if (currentUser || isViewOnly) {
-     console.log("Convidado recuperado da memória");
-     if(loader) loader.style.display = 'none';
-     if(landing) landing.style.display = 'none';
-     enterMainSite();
-  }
-  else {
-    console.log("Nenhum usuário. Mostrando capa.");
-    if(loader) loader.style.display = 'none';
-    if(landing) landing.style.display = 'flex';
-  }
+    const loader = document.getElementById('initialLoader');
+    const landing = document.getElementById('landingPage');
+
+    if (user && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+        console.log("Admin logado");
+        isAdminMode = true;
+        currentUser = "Admin";
+        if (loader) loader.style.display = 'none';
+        if (landing) landing.style.display = 'none';
+        enterMainSite();
+    }
+    else if (currentUser || isViewOnly) {
+        console.log("Convidado recuperado da memória");
+        if (loader) loader.style.display = 'none';
+        if (landing) landing.style.display = 'none';
+        enterMainSite();
+    }
+    else {
+        console.log("Nenhum usuário. Mostrando capa.");
+        if (loader) loader.style.display = 'none';
+        if (landing) landing.style.display = 'flex';
+    }
 });
 
 // --- 5. FUNÇÕES DE ACESSO (WINDOW) ---
@@ -84,9 +86,25 @@ window.closeModals = () => {
 }
 
 window.handleRSVP = async (e) => {
-    if(e) e.preventDefault();
-    const name = document.getElementById('rsvpName').value.trim();
-    if(!name) { alert("Por favor, digite seu nome."); return; }
+    if (e) e.preventDefault();
+
+    const nameInput = document.getElementById('rsvpName');
+    const name = nameInput.value.trim();
+
+    // 1. Validação se está vazio
+    if (!name) {
+        alert("Por favor, digite seu nome.");
+        return;
+    }
+    // --- NOVA VALIDAÇÃO: NOME SOBRENOME ---
+    // Divide o nome por espaços e conta quantas partes existem
+    const partesDoNome = name.split(' ').filter(parte => parte.trim().length > 0);
+
+    if (partesDoNome.length < 2) {
+        alert("Por favor, digite seu Nome e Sobrenome para evitar confusões na lista.");
+        return; // Para a função aqui e não salva
+    }
+    // --------------------------------------
 
     try {
         const guestsRef = collection(db, "guests");
@@ -95,11 +113,14 @@ window.handleRSVP = async (e) => {
 
         if (querySnapshot.empty) {
             await addDoc(guestsRef, { name: name, confirmedAt: new Date().toISOString() });
+        } else {
+            // Opcional: Avisar se o nome exato já existe
+            alert("Bem-vindo de volta! Seu nome já estava na lista.");
         }
-        
+
         currentUser = name;
         localStorage.setItem('weddingUser', name);
-        
+
         isViewOnly = false;
         window.closeModals();
         enterMainSite();
@@ -110,9 +131,9 @@ window.handleRSVP = async (e) => {
 }
 
 window.handleGuestLogin = async (e) => {
-    if(e) e.preventDefault();
+    if (e) e.preventDefault();
     const name = document.getElementById('loginGuestName').value.trim();
-    if(!name) { alert("Por favor, digite seu nome."); return; }
+    if (!name) { alert("Por favor, digite seu nome."); return; }
 
     try {
         const q = query(collection(db, "guests"), where("name", "==", name));
@@ -126,7 +147,7 @@ window.handleGuestLogin = async (e) => {
         } else {
             currentUser = name;
             localStorage.setItem('weddingUser', name);
-            
+
             isViewOnly = false;
             window.closeModals();
             enterMainSite();
@@ -141,7 +162,7 @@ window.enterViewOnly = () => {
 }
 
 window.logoutGuest = () => {
-    if(isAdminMode) {
+    if (isAdminMode) {
         signOut(auth);
     }
     localStorage.removeItem('weddingUser');
@@ -161,25 +182,29 @@ function updateUI() {
     const welcome = document.getElementById('guestWelcome');
     const indicator = document.getElementById('modeIndicator');
     const dashboard = document.getElementById('adminDashboard');
+    const btnCancel = document.getElementById('btnCancelRSVP'); // Pegamos o botão novo
     const body = document.body;
-    
+
     if (isAdminMode) {
         indicator.innerHTML = 'Painel Administrativo';
         body.classList.remove('user-mode');
         welcome.innerHTML = 'Modo Edição Ativo';
         welcome.classList.remove('hidden');
-        if(dashboard) dashboard.classList.remove('hidden'); // Mostra o dashboard
+        if (dashboard) dashboard.classList.remove('hidden');
+        if (btnCancel) btnCancel.classList.add('hidden'); // Admin não cancela presença dele mesmo
     } else if (currentUser) {
         indicator.innerHTML = 'Acesso Confirmado';
         body.classList.add('user-mode');
         welcome.innerHTML = `Olá, ${currentUser}`;
         welcome.classList.remove('hidden');
-        if(dashboard) dashboard.classList.add('hidden');
+        if (dashboard) dashboard.classList.add('hidden');
+        if (btnCancel) btnCancel.classList.remove('hidden'); // Convidado vê o botão
     } else {
         indicator.innerHTML = 'Apenas Visualizando';
         body.classList.add('user-mode');
         welcome.classList.add('hidden');
-        if(dashboard) dashboard.classList.add('hidden');
+        if (dashboard) dashboard.classList.add('hidden');
+        if (btnCancel) btnCancel.classList.add('hidden'); // Visitante não vê
     }
 }
 
@@ -189,7 +214,7 @@ function calculateAdminStats() {
 
     const totalItems = gifts.length;
     const purchasedItems = gifts.filter(g => g.purchased).length;
-    
+
     // Calcula o valor total (trata possíveis strings ou nulos)
     const totalValue = gifts.reduce((acc, g) => {
         if (g.purchased && g.price) {
@@ -200,7 +225,7 @@ function calculateAdminStats() {
 
     document.getElementById('dashTotalItems').innerText = totalItems;
     document.getElementById('dashTotalPurchased').innerText = purchasedItems;
-    document.getElementById('dashTotalValue').innerText = totalValue.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+    document.getElementById('dashTotalValue').innerText = totalValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
 // --- 7. CARREGAMENTO E RENDERIZAÇÃO ---
@@ -229,7 +254,7 @@ async function fetchGifts() {
 window.updateFilters = () => {
     activeSort = document.getElementById('sortFilter').value;
     activeCategory = document.getElementById('categoryFilter').value;
-    activeTag = document.getElementById('tagFilter').value; 
+    activeTag = document.getElementById('tagFilter').value;
     searchTerm = document.getElementById('searchInput').value.toLowerCase(); // NOVO: Busca
     renderGifts();
 }
@@ -238,26 +263,26 @@ function renderGifts() {
     const availableList = document.getElementById('availableGiftsList');
     const reservedList = document.getElementById('reservedGiftsList');
     const reservedSection = document.getElementById('reservedSection');
-    
+
     availableList.innerHTML = '';
     reservedList.innerHTML = '';
 
     let filtered = gifts;
-    
+
     // 1. Filtro por Categoria
-    if(activeCategory !== 'all') filtered = filtered.filter(g => g.category === activeCategory);
-    
+    if (activeCategory !== 'all') filtered = filtered.filter(g => g.category === activeCategory);
+
     // 2. Filtro por Etiqueta
-    if(activeTag !== 'all') filtered = filtered.filter(g => g.tag === activeTag);
+    if (activeTag !== 'all') filtered = filtered.filter(g => g.tag === activeTag);
 
     // 3. NOVO: Filtro por Texto (Nome)
-    if(searchTerm) filtered = filtered.filter(g => g.name.toLowerCase().includes(searchTerm));
-    
+    if (searchTerm) filtered = filtered.filter(g => g.name.toLowerCase().includes(searchTerm));
+
     // 4. Ordenação
     filtered.sort((a, b) => {
-        if(activeSort === 'name') return a.name.localeCompare(b.name);
-        if(activeSort === 'price-asc') return (a.price||0) - (b.price||0);
-        if(activeSort === 'price-desc') return (b.price||0) - (a.price||0);
+        if (activeSort === 'name') return a.name.localeCompare(b.name);
+        if (activeSort === 'price-asc') return (a.price || 0) - (b.price || 0);
+        if (activeSort === 'price-desc') return (b.price || 0) - (a.price || 0);
         return 0;
     });
 
@@ -279,19 +304,19 @@ function renderGifts() {
     const createCard = (gift, isReserved, index) => {
         const defaultImg = "https://placehold.co/400x300/f4f7f5/cbd5e1?text=Sem+Foto";
         const img = (gift.image && gift.image.trim()) ? gift.image : defaultImg;
-        const price = gift.price ? gift.price.toLocaleString('pt-BR', {style:'currency', currency:'BRL'}) : '';
+        const price = gift.price ? gift.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '';
         const icon = categoryIcons[gift.category] || categoryIcons["Outros"];
-        
+
         // --- 1. DESCRIÇÃO (Clean) ---
-        const descriptionHtml = gift.description 
+        const descriptionHtml = gift.description
             ? `<div class="text-xs text-gray-500 mb-2 italic">
                  Obs: ${gift.description}
-               </div>` 
+               </div>`
             : '';
 
         // --- 2. TAG COM COR DINÂMICA ---
         const badgeColor = tagColors[gift.tag] || "bg-gray-100 text-gray-800 border-gray-200";
-        const tagBadge = gift.tag 
+        const tagBadge = gift.tag
             ? `<div class="absolute top-2 left-2 ${badgeColor} text-[10px] font-bold px-2 py-1 rounded-md border shadow-sm z-20 flex items-center gap-1">
                  ${gift.tag}
                </div>`
@@ -309,9 +334,9 @@ function renderGifts() {
 
         let actions = '';
 
-       if(isReserved) {
+        if (isReserved) {
             const isMine = currentUser && gift.purchasedBy === currentUser;
-            
+
             // --- LÓGICA DE PRIVACIDADE DO NOME ---
             let labelTexto = "Status";
             let nomeMostrado = "Já Garantido"; // Padrão para estranhos
@@ -319,7 +344,7 @@ function renderGifts() {
             if (isAdminMode) {
                 // Admin vê tudo
                 labelTexto = "Reservado por";
-                nomeMostrado = gift.purchasedBy; 
+                nomeMostrado = gift.purchasedBy;
             } else if (isMine) {
                 // O dono da reserva vê que foi ele
                 labelTexto = "Sua Reserva";
@@ -328,8 +353,8 @@ function renderGifts() {
             // Se não for Admin nem o Dono, continua como "Já Garantido"
 
             // Verifica se tem mensagem e se é admin (apenas admin vê a mensagem)
-            const messageDisplay = (gift.guestMessage && isAdminMode) 
-                ? `<div class="mt-2 p-2 bg-yellow-50 border border-yellow-100 rounded text-xs text-gray-600 italic">"${gift.guestMessage}"</div>` 
+            const messageDisplay = (gift.guestMessage && isAdminMode)
+                ? `<div class="mt-2 p-2 bg-yellow-50 border border-yellow-100 rounded text-xs text-gray-600 italic">"${gift.guestMessage}"</div>`
                 : '';
 
             actions = `
@@ -344,22 +369,22 @@ function renderGifts() {
                     ${(isMine && !isAdminMode) ? `<button onclick="cancelRes('${gift.id}')" class="w-full mt-2 text-xs text-red-400 hover:text-red-600 underline">Cancelar minha reserva</button>` : ''}
                     ${isAdminMode ? `<button onclick="toggleStatus('${gift.id}', true)" class="w-full mt-2 text-xs text-blue-400 hover:text-blue-600 underline">Admin: Liberar</button>` : ''}
                 </div>`;
-        }else {
-            if(isAdminMode) {
+        } else {
+            if (isAdminMode) {
                 actions = `
                     <div class="mt-auto pt-4 space-y-2 border-t border-dashed border-gray-100 mt-4">
                         <button onclick="openLink('${gift.link}')" class="text-xs w-full text-center text-wedding-600 hover:underline flex items-center justify-center gap-1">
                            Testar Link <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                         </button>
                     </div>`;
-            } 
-            else if(isViewOnly) {
+            }
+            else if (isViewOnly) {
                 actions = `
                     <div class="mt-auto pt-4 space-y-2">
                         <button onclick="openLink('${gift.link}')" class="w-full py-2 border border-gray-200 text-gray-500 rounded text-sm hover:bg-gray-50 transition-colors">Ver na Loja</button>
                         <button disabled class="w-full py-2 bg-gray-100 text-gray-400 rounded text-sm cursor-not-allowed">Confirme presença p/ Reservar</button>
                     </div>`;
-            } 
+            }
             else {
                 actions = `
                     <div class="mt-auto pt-4 space-y-2">
@@ -389,7 +414,7 @@ function renderGifts() {
                         </span>
                     </div>
                     
-                    <h3 class="text-base font-serif font-bold text-gray-800 leading-tight mb-1 ${isReserved?'line-through text-gray-400':''}">${gift.name}</h3>
+                    <h3 class="text-base font-serif font-bold text-gray-800 leading-tight mb-1 ${isReserved ? 'line-through text-gray-400' : ''}">${gift.name}</h3>
                     
                     ${descriptionHtml}
                     
@@ -400,10 +425,10 @@ function renderGifts() {
             </div>`;
     };
 
-    if(avail.length === 0 && reserv.length === 0) availableList.innerHTML = '<p class="col-span-3 text-center text-gray-400 text-sm">Nenhum item encontrado.</p>';
+    if (avail.length === 0 && reserv.length === 0) availableList.innerHTML = '<p class="col-span-3 text-center text-gray-400 text-sm">Nenhum item encontrado.</p>';
     else avail.forEach((g, i) => availableList.innerHTML += createCard(g, false, i));
 
-    if(reserv.length > 0) {
+    if (reserv.length > 0) {
         reservedSection.classList.remove('hidden');
         reserv.forEach((g, i) => reservedList.innerHTML += createCard(g, true, i));
     } else reservedSection.classList.add('hidden');
@@ -411,66 +436,66 @@ function renderGifts() {
 
 // --- 8. FUNÇÕES AUXILIARES E CRUD ---
 window.maskCurrency = (input) => {
-    let v = input.value.replace(/\D/g,"");
-    if(!v) return input.value="";
-    input.value = (Number(v)/100).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+    let v = input.value.replace(/\D/g, "");
+    if (!v) return input.value = "";
+    input.value = (Number(v) / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
 window.addItem = async (e) => {
-    e.preventDefault(); if(!isAdminMode) return;
+    e.preventDefault(); if (!isAdminMode) return;
     const btn = document.getElementById('btnAddSubmit');
     const oldTxt = btn.innerText; btn.innerText = "..."; btn.disabled = true;
-    
+
     const name = document.getElementById('itemName').value;
     const link = document.getElementById('itemLink').value;
     const cat = document.getElementById('itemCategory').value;
     const manualImg = document.getElementById('itemImageManual').value;
-    
+
     // Pega a descrição do input
     const description = document.getElementById('itemDescription').value;
-    
+
     // NOVO: Pega a TAG
     const tag = document.getElementById('itemTag').value;
-    
+
     let price = document.getElementById('itemPrice').value.replace(/[^\d,]/g, '').replace(',', '.');
     price = parseFloat(price) || 0;
 
     let image = (manualImg) ? manualImg : await fetchMetaImage(link);
-    if(!image) image = "";
+    if (!image) image = "";
 
     try {
         // Inclui 'description' e 'tag' ao salvar
-        await addDoc(collection(db, 'gifts'), { 
-            name, link, category: cat, price, image, description, tag, purchased: false, purchasedBy: "" 
+        await addDoc(collection(db, 'gifts'), {
+            name, link, category: cat, price, image, description, tag, purchased: false, purchasedBy: ""
         });
         window.hideAddForm(); fetchGifts();
-    } catch(err) { console.error(err); alert("Erro ao adicionar."); } 
+    } catch (err) { console.error(err); alert("Erro ao adicionar."); }
     finally { btn.innerText = oldTxt; btn.disabled = false; }
 }
 
 window.updateItem = async (e) => {
-    e.preventDefault(); if(!isAdminMode) return;
+    e.preventDefault(); if (!isAdminMode) return;
     const id = document.getElementById('editItemId').value;
     const name = document.getElementById('editItemName').value;
     const link = document.getElementById('editItemLink').value;
     const cat = document.getElementById('editItemCategory').value;
     const manualImg = document.getElementById('editItemImageManual').value;
     const currImg = document.getElementById('editItemCurrentImg').value;
-    
+
     // Pega descrição
     const description = document.getElementById('editItemDescription').value;
-    
+
     // NOVO: Pega a TAG
     const tag = document.getElementById('editItemTag').value;
 
     let price = document.getElementById('editItemPrice').value.replace(/[^\d,]/g, '').replace(',', '.');
     price = parseFloat(price) || 0;
     let image = manualImg ? manualImg : ((!currImg) ? await fetchMetaImage(link) : currImg);
-    try { 
+    try {
         // Inclui 'description' e 'tag' ao atualizar
-        await updateDoc(doc(db, 'gifts', id), { name, link, category: cat, price, image, description, tag }); 
-        window.hideEditModal(); fetchGifts(); 
-    } catch(err){console.error(err);}
+        await updateDoc(doc(db, 'gifts', id), { name, link, category: cat, price, image, description, tag });
+        window.hideEditModal(); fetchGifts();
+    } catch (err) { console.error(err); }
 }
 
 window.showAddForm = () => document.getElementById('addForm').classList.remove('hidden');
@@ -479,28 +504,28 @@ window.hideEditModal = () => document.getElementById('editModal').classList.add(
 
 window.editItem = (id) => {
     const g = gifts.find(x => x.id === id);
-    if(!g) return;
+    if (!g) return;
     document.getElementById('editItemId').value = id;
     document.getElementById('editItemName').value = g.name;
     document.getElementById('editItemLink').value = g.link;
     document.getElementById('editItemCategory').value = g.category;
-    document.getElementById('editItemPrice').value = g.price ? g.price.toLocaleString('pt-BR', {style:'currency', currency:'BRL'}) : '';
+    document.getElementById('editItemPrice').value = g.price ? g.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '';
     document.getElementById('editItemImageManual').value = g.image || '';
     document.getElementById('editItemCurrentImg').value = g.image || '';
 
     // Preenche o campo de descrição
     document.getElementById('editItemDescription').value = g.description || '';
-    
+
     // NOVO: Preenche a TAG no modal
     document.getElementById('editItemTag').value = g.tag || '';
 
     document.getElementById('editModal').classList.remove('hidden');
 }
 
-window.deleteItem = async (id) => { if(confirm("Tem certeza que deseja excluir?")) { await deleteDoc(doc(db, 'gifts', id)); fetchGifts(); } }
-window.toggleStatus = async (id, st) => { await updateDoc(doc(db, 'gifts', id), { purchased: !st, purchasedBy: !st?"Admin":"" }); fetchGifts(); }
+window.deleteItem = async (id) => { if (confirm("Tem certeza que deseja excluir?")) { await deleteDoc(doc(db, 'gifts', id)); fetchGifts(); } }
+window.toggleStatus = async (id, st) => { await updateDoc(doc(db, 'gifts', id), { purchased: !st, purchasedBy: !st ? "Admin" : "" }); fetchGifts(); }
 window.openLink = (url) => window.open(url, '_blank');
-window.copyPix = () => navigator.clipboard.writeText(document.getElementById('pixKey').innerText).then(()=>alert("Chave PIX copiada!"));
+window.copyPix = () => navigator.clipboard.writeText(document.getElementById('pixKey').innerText).then(() => alert("Chave PIX copiada!"));
 
 window.openResModal = (id) => {
     document.getElementById('reserveGiftId').value = id;
@@ -510,7 +535,7 @@ window.openResModal = (id) => {
 window.hideReserveModal = () => document.getElementById('reserveModal').classList.add('hidden');
 
 const reserveForm = document.getElementById('reserveForm');
-if(reserveForm) {
+if (reserveForm) {
     reserveForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const id = document.getElementById('reserveGiftId').value;
@@ -519,35 +544,35 @@ if(reserveForm) {
         try {
             await runTransaction(db, async (t) => {
                 const d = await t.get(doc(db, 'gifts', id));
-                if(d.data().purchased) throw "Ops! Alguém acabou de reservar este item.";
-                
+                if (d.data().purchased) throw "Ops! Alguém acabou de reservar este item.";
+
                 // Salva com a mensagem
-                t.update(doc(db, 'gifts', id), { 
-                    purchased: true, 
+                t.update(doc(db, 'gifts', id), {
+                    purchased: true,
                     purchasedBy: currentUser,
                     guestMessage: msg // Salva no banco
                 });
             });
-            window.hideReserveModal(); 
+            window.hideReserveModal();
             fetchGifts();
 
             // Efeito Confete
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#4a7c59', '#e3ebe5', '#ff0000', '#ffd700'] });
-            
+
             // Toast Bonito
             window.showToast("Presente reservado com sucesso!", "success");
 
-        } catch(err) { 
+        } catch (err) {
             window.showToast(err, "error"); // Toast de Erro
-            window.hideReserveModal(); 
-            fetchGifts(); 
+            window.hideReserveModal();
+            fetchGifts();
         }
     });
 }
 
 window.cancelRes = async (id) => {
-    if(confirm("Tem certeza que deseja cancelar sua reserva?")) {
-        try { await updateDoc(doc(db, 'gifts', id), { purchased: false, purchasedBy: "" }); fetchGifts(); } catch(err) { alert(err.message); }
+    if (confirm("Tem certeza que deseja cancelar sua reserva?")) {
+        try { await updateDoc(doc(db, 'gifts', id), { purchased: false, purchasedBy: "" }); fetchGifts(); } catch (err) { alert(err.message); }
     }
 }
 
@@ -555,12 +580,12 @@ window.showToast = (message, type = 'success') => {
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    
+
     // Ícones baseados no tipo
     let icon = '';
-    if(type === 'success') icon = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>';
-    if(type === 'error') icon = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>';
-    
+    if (type === 'success') icon = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>';
+    if (type === 'error') icon = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>';
+
     toast.innerHTML = `${icon}<span>${message}</span>`;
     container.appendChild(toast);
 
@@ -579,7 +604,7 @@ function startCountdown() {
         if (distance < 0) {
             clearInterval(timer);
             const el = document.getElementById("countdown");
-            if(el) el.innerHTML = '<span class="text-xl font-serif text-wedding-600">Chegou o grande dia! ❤️</span>';
+            if (el) el.innerHTML = '<span class="text-xl font-serif text-wedding-600">Chegou o grande dia! ❤️</span>';
             return;
         }
 
@@ -589,7 +614,7 @@ function startCountdown() {
         const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
         const dEl = document.getElementById("days");
-        if(dEl) {
+        if (dEl) {
             dEl.innerText = days < 10 ? "0" + days : days;
             document.getElementById("hours").innerText = hours < 10 ? "0" + hours : hours;
             document.getElementById("minutes").innerText = minutes < 10 ? "0" + minutes : minutes;
@@ -635,7 +660,7 @@ window.exportReport = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     window.showToast("Relatório gerado com sucesso!", "success");
 }
 // EXPORTAR LISTA DE PRESENÇA (NOVO)
@@ -662,4 +687,74 @@ window.exportGuestList = async () => {
         document.body.removeChild(link);
         window.showToast("Lista de presença baixada!", "success");
     } catch (err) { console.error(err); window.showToast("Erro ao baixar lista.", "error"); }
+}
+
+
+// --- FUNÇÕES DE CANCELAMENTO (NOVO VISUAL) ---
+
+// 1. Abre o modal bonito
+window.openCancelModal = () => {
+    document.getElementById('cancelRSVPModal').classList.remove('hidden');
+}
+
+// 2. Fecha o modal
+window.closeCancelModal = () => {
+    document.getElementById('cancelRSVPModal').classList.add('hidden');
+}
+
+// 3. Executa a ação real (Lógica inteligente com Batch)
+window.confirmCancelRSVP = async () => {
+    if (!currentUser) return;
+
+    // Fecha o modal e mostra loading
+    window.closeCancelModal();
+    const loader = document.getElementById('initialLoader');
+    if (loader) loader.style.display = 'flex';
+
+    try {
+        const batch = writeBatch(db); // Prepara o lote
+
+        // A. Libera presentes
+        const giftsRef = collection(db, 'gifts');
+        const qGifts = query(giftsRef, where("purchasedBy", "==", currentUser));
+        const giftsSnapshot = await getDocs(qGifts);
+
+        giftsSnapshot.forEach((docSnap) => {
+            batch.update(docSnap.ref, {
+                purchased: false,
+                purchasedBy: "",
+                guestMessage: ""
+            });
+        });
+
+        // B. Apaga o convidado
+        const guestsRef = collection(db, "guests");
+        const qGuest = query(guestsRef, where("name", "==", currentUser));
+        const guestSnapshot = await getDocs(qGuest);
+
+        if (guestSnapshot.empty) {
+            alert("Erro: Usuário não encontrado.");
+            if (loader) loader.style.display = 'none';
+            return;
+        }
+
+        guestSnapshot.forEach((docSnap) => {
+            batch.delete(docSnap.ref);
+        });
+
+        // C. Executa tudo
+        await batch.commit();
+
+        // D. Feedback e Logout
+        // Pequeno timeout para garantir que o usuário veja a transição
+        setTimeout(() => {
+            alert("Sua presença foi cancelada e seus itens foram liberados.");
+            window.logoutGuest();
+        }, 500);
+
+    } catch (error) {
+        console.error("Erro ao cancelar RSVP:", error);
+        alert("Ocorreu um erro. Verifique sua conexão.");
+        if (loader) loader.style.display = 'none';
+    }
 }

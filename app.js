@@ -33,6 +33,7 @@ let activeTag = 'all';
 let searchTerm = ''; // NOVO: Variável para busca
 
 const ADMIN_EMAIL = "admin2@gmail.com"; 
+const WEDDING_DATE = new Date("2026-04-11T16:00:00").getTime();
 
 // --- 3. ÍCONES SVG ---
 const categoryIcons = {
@@ -548,4 +549,97 @@ window.showToast = (message, type = 'success') => {
         toast.classList.add('hide');
         toast.addEventListener('animationend', () => toast.remove());
     }, 3000);
+}
+// --- FUNÇÃO DO CONTADOR ---
+function startCountdown() {
+    const timer = setInterval(() => {
+        const now = new Date().getTime();
+        const distance = WEDDING_DATE - now;
+
+        if (distance < 0) {
+            clearInterval(timer);
+            const el = document.getElementById("countdown");
+            if(el) el.innerHTML = '<span class="text-xl font-serif text-wedding-600">Chegou o grande dia! ❤️</span>';
+            return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        const dEl = document.getElementById("days");
+        if(dEl) {
+            dEl.innerText = days < 10 ? "0" + days : days;
+            document.getElementById("hours").innerText = hours < 10 ? "0" + hours : hours;
+            document.getElementById("minutes").innerText = minutes < 10 ? "0" + minutes : minutes;
+            document.getElementById("seconds").innerText = seconds < 10 ? "0" + seconds : seconds;
+        }
+    }, 1000);
+}
+
+// Inicia o contador assim que carrega
+startCountdown();
+
+// --- FUNÇÃO DE EXPORTAR RELATÓRIO (ADMIN) ---
+window.exportReport = () => {
+    if (!isAdminMode) return;
+
+    // Cabeçalho do CSV
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Produto,Categoria,Preço,Comprador,Mensagem\n";
+
+    // Filtra apenas os comprados
+    const purchased = gifts.filter(g => g.purchased);
+
+    if (purchased.length === 0) {
+        window.showToast("Nenhum presente comprado para exportar.", "info");
+        return;
+    }
+
+    purchased.forEach(g => {
+        // Limpa vírgulas e quebras de linha para não quebrar o CSV
+        const safeName = g.name.replace(/,/g, "");
+        const safeBuyer = g.purchasedBy ? g.purchasedBy.replace(/,/g, "") : "Anônimo";
+        const safeMsg = g.guestMessage ? g.guestMessage.replace(/(\r\n|\n|\r|,)/gm, " ") : "";
+        const price = g.price ? g.price.toFixed(2).replace('.', ',') : "0,00";
+
+        csvContent += `${safeName},${g.category},"${price}",${safeBuyer},"${safeMsg}"\n`;
+    });
+
+    // Cria o link de download
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "lista_presentes_vitoria_jhonatas.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    window.showToast("Relatório gerado com sucesso!", "success");
+}
+// EXPORTAR LISTA DE PRESENÇA (NOVO)
+window.exportGuestList = async () => {
+    if (!isAdminMode) return;
+    try {
+        const snapshot = await getDocs(collection(db, "guests"));
+        if (snapshot.empty) { window.showToast("Nenhum convidado confirmado.", "info"); return; }
+
+        let csvContent = "data:text/csv;charset=utf-8,Nome do Convidado,Data da Confirmacao\n";
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const name = data.name ? data.name.replace(/,/g, "") : "Sem Nome";
+            const date = data.confirmedAt ? new Date(data.confirmedAt).toLocaleDateString('pt-BR') : "-";
+            csvContent += `${name},${date}\n`;
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "lista_presenca_vitoria_jhonatas.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.showToast("Lista de presença baixada!", "success");
+    } catch (err) { console.error(err); window.showToast("Erro ao baixar lista.", "error"); }
 }

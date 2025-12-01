@@ -86,6 +86,13 @@
         <h1 class="text-5xl md:text-6xl font-serif text-wedding-800 leading-none">
           Vitória <span class="text-wedding-600 font-light text-4xl">&</span> Jhonatas
         </h1>
+
+        <div id="countdown" class="flex justify-center gap-4 py-4 text-wedding-800">
+            <div class="text-center"><span class="block text-2xl font-bold font-serif" id="days">00</span><span class="text-[10px] uppercase tracking-wider text-gray-400">Dias</span></div>
+            <div class="text-center"><span class="block text-2xl font-bold font-serif" id="hours">00</span><span class="text-[10px] uppercase tracking-wider text-gray-400">Hrs</span></div>
+            <div class="text-center"><span class="block text-2xl font-bold font-serif" id="minutes">00</span><span class="text-[10px] uppercase tracking-wider text-gray-400">Min</span></div>
+            <div class="text-center"><span class="block text-2xl font-bold font-serif" id="seconds">00</span><span class="text-[10px] uppercase tracking-wider text-gray-400">Seg</span></div>
+        </div>
       </div>
 
       <p class="text-gray-500 font-light leading-relaxed px-2 text-sm md:text-base">
@@ -176,6 +183,15 @@
                     <p class="text-2xl font-bold text-wedding-600" id="dashTotalValue">R$ 0,00</p>
                 </div>
             </div>
+        </div>
+        
+        <div class="mt-6 flex flex-col md:flex-row justify-end gap-4">
+            <button onclick="exportGuestList()" class="text-xs font-bold text-blue-600 hover:text-blue-800 uppercase tracking-widest border-b border-blue-600 hover:border-blue-800 pb-1 transition-colors flex items-center gap-2 justify-end">
+               📋 Baixar Lista de Presença
+            </button>
+            <button onclick="exportReport()" class="text-xs font-bold text-wedding-600 hover:text-wedding-800 uppercase tracking-widest border-b border-wedding-600 hover:border-wedding-800 pb-1 transition-colors flex items-center gap-2 justify-end">
+               🎁 Baixar Lista de Presentes
+            </button>
         </div>
       </div>
 
@@ -368,18 +384,18 @@
           <p class="text-gray-500 mb-6 text-sm">Reservar este item como <strong id="reserveGuestNameDisplay"
               class="text-wedding-600"></strong>?</p>
           <form id="reserveForm" class="space-y-4">
-    <input type="hidden" id="reserveGiftId">
-    
-    <div class="text-left">
-        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Mensagem para os noivos (Opcional)</label>
-        <textarea id="reserveMessage" rows="3" placeholder="Escreva algo carinhoso..." class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-wedding-600 outline-none text-sm resize-none"></textarea>
-    </div>
+            <input type="hidden" id="reserveGiftId">
+            
+            <div class="text-left">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Mensagem para os noivos (Opcional)</label>
+                <textarea id="reserveMessage" rows="3" placeholder="Escreva algo carinhoso..." class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-wedding-600 outline-none text-sm resize-none"></textarea>
+            </div>
 
-    <div class="flex gap-3 pt-2">
-        <button type="button" onclick="hideReserveModal()" class="flex-1 bg-white border border-gray-200 text-gray-600 py-2 rounded-lg hover:bg-gray-50">Cancelar</button>
-        <button type="submit" class="flex-1 bg-wedding-600 text-white font-medium py-2 rounded-lg hover:bg-wedding-800 shadow-md">Sim, Confirmar</button>
-    </div>
-</form>
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="hideReserveModal()" class="flex-1 bg-white border border-gray-200 text-gray-600 py-2 rounded-lg hover:bg-gray-50">Cancelar</button>
+                <button type="submit" class="flex-1 bg-wedding-600 text-white font-medium py-2 rounded-lg hover:bg-wedding-800 shadow-md">Sim, Confirmar</button>
+            </div>
+          </form>
         </div>
       </div>
     </main>

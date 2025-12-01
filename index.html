@@ -5,13 +5,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chá de Noivado - Vitória & Jhonatas</title>
-  
+
   <script src="https://cdn.tailwindcss.com"></script>
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+    rel="stylesheet">
+
   <link rel="stylesheet" href="style.css">
 
   <script>
@@ -40,11 +42,12 @@
       background-color: #ffffff;
       background-image: radial-gradient(#4a7c59 0.5px, transparent 0.5px), radial-gradient(#4a7c59 0.5px, #ffffff 0.5px);
       background-size: 24px 24px;
-      opacity: 0.08; 
+      opacity: 0.08;
     }
+
     /* Estilo para Select sem a seta padrão feia */
     .modern-select {
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%234a7c59' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%234a7c59' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
     }
   </style>
 </head>
@@ -52,182 +55,355 @@
 <body class="bg-wedding-50 min-h-full font-sans text-gray-700 antialiased" id="mainBody">
 
   <div id="initialLoader">
-      <div class="text-wedding-600 animate-spin mb-4">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>
-      </div>
-      <p class="text-wedding-800 font-medium tracking-[0.2em] uppercase text-xs">Carregando</p>
+    <div class="text-wedding-600 animate-spin mb-4">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 2a10 10 0 0 1 10 10" />
+      </svg>
+    </div>
+    <p class="text-wedding-800 font-medium tracking-[0.2em] uppercase text-xs">Carregando</p>
   </div>
-  
-  <div id="landingPage" class="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 overflow-y-auto bg-white">
+
+  <div id="landingPage"
+    class="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 overflow-y-auto bg-white">
     <div class="absolute inset-0 hero-pattern z-0 pointer-events-none"></div>
 
-    <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl p-8 md:p-12 max-w-lg w-full text-center space-y-8 border border-gray-100 z-10 relative">
-        
-        <div class="text-wedding-600 flex justify-center opacity-80">
-            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-        </div>
+    <div
+      class="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl p-8 md:p-12 max-w-lg w-full text-center space-y-8 border border-gray-100 z-10 relative">
 
-        <div class="space-y-3">
-            <h2 class="text-xs uppercase tracking-[0.4em] text-gray-400 font-bold">Chá de Noivado</h2>
-            <h1 class="text-5xl md:text-6xl font-serif text-wedding-800 leading-none">
-                Vitória <span class="text-wedding-600 font-light text-4xl">&</span> Jhonatas
-            </h1>
-        </div>
+      <div class="text-wedding-600 flex justify-center opacity-80">
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor" stroke-width="1">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+      </div>
 
-        <p class="text-gray-500 font-light leading-relaxed px-2 text-sm md:text-base">
-            Estamos construindo nosso sonho. <br>
-            Sua presença é o nosso maior presente.
-        </p>
-        
-        <div class="space-y-3 pt-4">
-            <button onclick="openRSVPModal()" class="w-full bg-wedding-600 text-white py-4 px-6 rounded-lg font-medium text-sm tracking-wide shadow-md hover:bg-wedding-800 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-3">
-                <span>Confirmar Presença</span>
-            </button>
-            
-            <button onclick="openLoginModal()" class="w-full bg-transparent text-wedding-800 border border-wedding-600/30 py-3 px-6 rounded-lg font-medium text-sm hover:bg-wedding-50 transition-all tracking-wide">
-                Já confirmei, ver lista
-            </button>
-            
-            <button onclick="enterViewOnly()" class="w-full text-gray-400 py-2 hover:text-wedding-600 text-xs font-medium transition-colors">
-                Visualizar lista sem compromisso
-            </button>
-        </div>
+      <div class="space-y-3">
+        <h2 class="text-xs uppercase tracking-[0.4em] text-gray-400 font-bold">Chá de Noivado</h2>
+        <h1 class="text-5xl md:text-6xl font-serif text-wedding-800 leading-none">
+          Vitória <span class="text-wedding-600 font-light text-4xl">&</span> Jhonatas
+        </h1>
+      </div>
 
-        <div class="border-t border-gray-100 pt-6">
-            <button onclick="openPixModal()" class="text-gray-400 hover:text-wedding-600 text-xs flex items-center justify-center gap-2 mx-auto transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                Opção de presente via PIX
-            </button>
-        </div>
+      <p class="text-gray-500 font-light leading-relaxed px-2 text-sm md:text-base">
+        Estamos construindo nosso sonho. <br>
+        Sua presença é o nosso maior presente.
+      </p>
 
-        <div class="pt-1">
-            <a href="login.html" class="text-[10px] text-gray-300 hover:text-gray-500 uppercase tracking-widest">Admin</a>
-        </div>
+      <div class="space-y-3 pt-4">
+        <button onclick="openRSVPModal()"
+          class="w-full bg-wedding-600 text-white py-4 px-6 rounded-lg font-medium text-sm tracking-wide shadow-md hover:bg-wedding-800 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-3">
+          <span>Confirmar Presença</span>
+        </button>
+
+        <button onclick="openLoginModal()"
+          class="w-full bg-transparent text-wedding-800 border border-wedding-600/30 py-3 px-6 rounded-lg font-medium text-sm hover:bg-wedding-50 transition-all tracking-wide">
+          Já confirmei, ver lista
+        </button>
+
+        <button onclick="enterViewOnly()"
+          class="w-full text-gray-400 py-2 hover:text-wedding-600 text-xs font-medium transition-colors">
+          Visualizar lista sem compromisso
+        </button>
+      </div>
+
+      <div class="border-t border-gray-100 pt-6 w-full">
+        <button onclick="openPixModal()"
+          class="w-full bg-wedding-50 text-wedding-800 hover:bg-wedding-100 font-bold py-3 rounded-lg text-sm flex items-center justify-center gap-2 transition-all shadow-sm border border-wedding-100">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Quero presentear via PIX
+        </button>
+      </div>
+
+      <div class="pt-1">
+        <a href="login.html" class="text-[10px] text-gray-300 hover:text-gray-500 uppercase tracking-widest">Admin</a>
+      </div>
     </div>
   </div>
 
   <div id="mainContent">
-      <div class="mode-toggle">
-        <button onclick="logoutGuest()" class="bg-white shadow-sm rounded-full px-5 py-2 text-xs font-bold uppercase tracking-wider border border-gray-100 hover:shadow-md transition-all text-red-400 flex items-center gap-2">
-          Sair
+    <div class="mode-toggle">
+      <button onclick="logoutGuest()"
+        class="bg-white shadow-sm rounded-full px-5 py-2 text-xs font-bold uppercase tracking-wider border border-gray-100 hover:shadow-md transition-all text-red-400 flex items-center gap-2">
+        Sair
+      </button>
+    </div>
+
+    <main class="container mx-auto px-4 py-12 max-w-5xl">
+      <header class="text-center mb-12 relative">
+        <h2 class="text-xs font-bold text-wedding-600 uppercase tracking-[0.3em] mb-3">Lista de Presentes</h2>
+        <h1 class="text-4xl md:text-5xl font-serif text-wedding-800 mb-6">Vitória & Jhonatas</h1>
+
+        <div id="guestWelcome"
+          class="hidden mb-6 bg-wedding-50 inline-block px-6 py-2 rounded-full text-wedding-800 border border-wedding-100 text-sm font-medium">
+        </div>
+        <div id="modeIndicator" class="mt-2 block text-gray-400 text-[10px] uppercase tracking-widest"></div>
+      </header>
+
+      <div class="admin-only text-center mb-10">
+        <button onclick="showAddForm()"
+          class="bg-gray-800 text-white px-6 py-3 rounded-lg text-sm font-medium shadow-lg hover:bg-black transition-all flex items-center gap-2 mx-auto">
+          <span>+ Adicionar Novo Item</span>
         </button>
       </div>
 
-      <main class="container mx-auto px-4 py-12 max-w-5xl">
-        <header class="text-center mb-12 relative">
-          <h2 class="text-xs font-bold text-wedding-600 uppercase tracking-[0.3em] mb-3">Lista de Presentes</h2>
-          <h1 class="text-4xl md:text-5xl font-serif text-wedding-800 mb-6">Vitória & Jhonatas</h1>
-          
-          <div id="guestWelcome" class="hidden mb-6 bg-wedding-50 inline-block px-6 py-2 rounded-full text-wedding-800 border border-wedding-100 text-sm font-medium"></div>
-          <div id="modeIndicator" class="mt-2 block text-gray-400 text-[10px] uppercase tracking-widest"></div>
-        </header>
-
-        <div class="admin-only text-center mb-10">
-          <button onclick="showAddForm()" class="bg-gray-800 text-white px-6 py-3 rounded-lg text-sm font-medium shadow-lg hover:bg-black transition-all flex items-center gap-2 mx-auto">
-            <span>+ Adicionar Novo Item</span>
-          </button>
-        </div>
-
-        <div id="addForm" class="admin-only hidden bg-white rounded-xl shadow-xl p-8 mb-10 border border-gray-100 max-w-2xl mx-auto">
-          <h3 class="text-lg font-serif text-gray-800 mb-6">Novo Presente</h3>
-          <form onsubmit="addItem(event)" class="space-y-5">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div><label class="block text-xs font-bold text-gray-500 uppercase mb-2">Nome do Produto</label><input type="text" id="itemName" required class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-wedding-600 focus:border-wedding-600 outline-none transition-all"></div>
-                <div><label class="block text-xs font-bold text-gray-500 uppercase mb-2">Valor (R$)</label><input type="text" id="itemPrice" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-wedding-600 outline-none" oninput="maskCurrency(this)"></div>
+      <div id="addForm"
+        class="admin-only hidden bg-white rounded-xl shadow-xl p-8 mb-10 border border-gray-100 max-w-2xl mx-auto">
+        <h3 class="text-lg font-serif text-gray-800 mb-6">Novo Presente</h3>
+        <form onsubmit="addItem(event)" class="space-y-5">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-2">Nome do Produto</label><input
+                type="text" id="itemName" required
+                class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-wedding-600 focus:border-wedding-600 outline-none transition-all">
             </div>
-            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-2">Link da Loja</label><input type="url" id="itemLink" required class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-wedding-600 outline-none"></div>
-            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-2">Link Imagem (Manual)</label><input type="url" id="itemImageManual" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-wedding-600 outline-none"></div>
-            <div>
-              <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Categoria</label>
-              <select id="itemCategory" class="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white focus:ring-1 focus:ring-wedding-600 outline-none">
-                <option value="Cozinha">Cozinha</option><option value="Sala">Sala</option><option value="Quarto">Quarto</option><option value="Banheiro">Banheiro</option><option value="Decoração">Decoração</option><option value="Limpeza">Limpeza</option><option value="Outros">Outros</option>
-              </select>
-            </div>
-            <div class="flex gap-4 pt-4">
-              <button type="submit" id="btnAddSubmit" class="flex-1 bg-wedding-600 text-white py-2 rounded-lg hover:bg-wedding-800 transition-colors">Salvar</button>
-              <button type="button" onclick="hideAddForm()" class="flex-1 bg-gray-100 text-gray-600 py-2 rounded-lg hover:bg-gray-200 transition-colors">Cancelar</button>
-            </div>
-          </form>
-        </div>
-
-        <div class="filter-bar mb-10">
-            <div class="filter-inputs">
-                <select id="sortFilter" onchange="updateFilters()" class="modern-select text-sm text-gray-600">
-                    <option value="name">Ordenar por Nome</option><option value="price-asc">Menor Preço</option><option value="price-desc">Maior Preço</option>
-                </select>
-                <select id="categoryFilter" onchange="updateFilters()" class="modern-select text-sm text-gray-600">
-                    <option value="all">Todas as Categorias</option><option value="Cozinha">Cozinha</option><option value="Sala">Sala</option><option value="Quarto">Quarto</option><option value="Banheiro">Banheiro</option><option value="Decoração">Decoração</option><option value="Limpeza">Limpeza</option><option value="Outros">Outros</option>
-                </select>
-            </div>
-        </div>
-
-        <div id="giftListContainer" class="space-y-16">
-          <div>
-            <h2 id="available-title" class="text-xl font-serif text-wedding-800 mb-8 flex items-center gap-3">
-                <span class="w-8 h-[1px] bg-wedding-600"></span>
-                Disponíveis
-            </h2>
-            <div id="availableGiftsList" class="grid gap-8 md:grid-cols-2 lg:grid-cols-3"></div>
+            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-2">Valor (R$)</label><input
+                type="text" id="itemPrice"
+                class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-wedding-600 outline-none"
+                oninput="maskCurrency(this)"></div>
+          </div>
+          <div><label class="block text-xs font-bold text-gray-500 uppercase mb-2">Link da Loja</label><input type="url"
+              id="itemLink" required
+              class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-wedding-600 outline-none">
+          </div>
+          <div><label class="block text-xs font-bold text-gray-500 uppercase mb-2">Link Imagem (Manual)</label><input
+              type="url" id="itemImageManual"
+              class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-wedding-600 outline-none">
           </div>
           
-          <div id="reservedSection">
-            <h2 id="reserved-title" class="text-xl font-serif text-gray-400 mb-8 flex items-center gap-3">
-                <span class="w-8 h-[1px] bg-gray-300"></span>
-                Já Garantidos
-            </h2>
-            <div id="reservedGiftsList" class="grid gap-8 md:grid-cols-2 lg:grid-cols-3"></div>
-          </div>
-        </div>
-
-        <div id="editModal" class="admin-only hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"><div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-2xl"><form onsubmit="updateItem(event)" class="space-y-4"><input type="hidden" id="editItemId"><input type="hidden" id="editItemCurrentImg"><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nome</label><input type="text" id="editItemName" required class="w-full px-4 py-2 border rounded-lg"></div><div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor</label><input type="text" id="editItemPrice" oninput="maskCurrency(this)" class="w-full px-4 py-2 border rounded-lg"></div></div><div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Link</label><input type="url" id="editItemLink" required class="w-full px-4 py-2 border rounded-lg"></div><div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Imagem Manual</label><input type="url" id="editItemImageManual" class="w-full px-4 py-2 border rounded-lg"></div><div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Categoria</label><select id="editItemCategory" class="w-full px-4 py-2 border rounded-lg"><option value="Cozinha">Cozinha</option><option value="Sala">Sala</option><option value="Quarto">Quarto</option><option value="Banheiro">Banheiro</option><option value="Decoração">Decoração</option><option value="Limpeza">Limpeza</option><option value="Outros">Outros</option></select></div><div class="flex gap-3 pt-4"><button type="submit" id="btnEditSubmit" class="flex-1 bg-wedding-600 text-white py-2 rounded-lg">Salvar Alterações</button><button type="button" onclick="hideEditModal()" class="flex-1 bg-gray-100 text-gray-600 py-2 rounded-lg">Cancelar</button></div></form></div></div>
-        
-        <div id="reserveModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"><div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md text-center"><h3 class="text-2xl font-serif text-wedding-800 mb-2">Confirmar Escolha</h3><p class="text-gray-500 mb-6 text-sm">Reservar este item como <strong id="reserveGuestNameDisplay" class="text-wedding-600"></strong>?</p><form id="reserveForm" class="space-y-4"><input type="hidden" id="reserveGiftId"><div class="flex gap-3 pt-2"><button type="button" onclick="hideReserveModal()" class="flex-1 bg-white border border-gray-200 text-gray-600 py-2 rounded-lg hover:bg-gray-50">Cancelar</button><button type="submit" class="flex-1 bg-wedding-600 text-white font-medium py-2 rounded-lg hover:bg-wedding-800 shadow-md">Sim, Confirmar</button></div></form></div></div>
-      </main>
-  </div>
-
-  <div id="rsvpModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4"><div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-sm"><h3 class="text-2xl font-serif text-wedding-800 mb-2">Confirmar Presença</h3><p class="text-gray-500 mb-6 text-sm">Que alegria ter você conosco! Digite seu nome completo.</p><form onsubmit="handleRSVP(event)" class="space-y-4"><input type="text" id="rsvpName" required placeholder="Seu nome completo" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 focus:ring-wedding-600 outline-none transition-all"><button type="submit" class="w-full bg-wedding-600 text-white font-medium py-3 rounded-lg hover:bg-wedding-800 transition-colors shadow-md">Confirmar e Entrar</button><button type="button" onclick="closeModals()" class="w-full text-gray-400 py-2 text-xs hover:text-gray-600">Cancelar</button></form></div></div>
-  <div id="loginGuestModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4"><div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-sm"><h3 class="text-2xl font-serif text-wedding-800 mb-2">Bem-vindo de volta</h3><p class="text-gray-500 mb-6 text-sm">Digite o nome usado na confirmação.</p><form onsubmit="handleGuestLogin(event)" class="space-y-4"><input type="text" id="loginGuestName" required placeholder="Seu nome completo" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 focus:ring-wedding-600 outline-none transition-all"><button type="submit" class="w-full bg-wedding-600 text-white font-medium py-3 rounded-lg hover:bg-wedding-800 transition-colors shadow-md">Acessar Lista</button><button type="button" onclick="closeModals()" class="w-full text-gray-400 py-2 text-xs hover:text-gray-600">Cancelar</button></form></div></div>
-   <div id="pixModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
-      <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm text-center relative overflow-hidden">
-          
-          <!-- Faixa decorativa no topo -->
-          <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-wedding-100 via-wedding-600 to-wedding-100"></div>
-
-          <h3 class="text-2xl font-serif text-wedding-800 mb-2 mt-4">Mimo via PIX</h3>
-          <p class="text-gray-500 text-xs mb-8 px-2">
-              Envie sua mensagem de carinho e contribua com nosso sonho de forma prática.
-          </p>
-
-          <!-- MONOGRAMA V & J (No lugar do QR Code) -->
-          <div class="flex justify-center mb-8">
-              <div class="w-36 h-36 bg-wedding-50 rounded-full flex items-center justify-center border-[6px] border-white shadow-lg ring-1 ring-gray-100 relative group">
-                  <!-- Círculo decorativo interno -->
-                  <div class="absolute inset-2 border border-wedding-200 rounded-full opacity-60"></div>
-                  
-                  <!-- Iniciais -->
-                  <span class="font-serif text-5xl text-wedding-800 tracking-tighter z-10 group-hover:scale-105 transition-transform duration-500">
-                      V<span class="text-wedding-600 text-3xl italic mx-1 font-light">&</span>J
-                  </span>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Detalhes (Cor / Tamanho / Voltagem)</label>
+                <input type="text" id="itemDescription" placeholder="Ex: 110v, Cor Azul, Tamanho G..."
+                  class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-wedding-600 outline-none">
+              </div>
+              <div>
+                  <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Etiqueta Especial</label>
+                  <select id="itemTag" class="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white focus:ring-1 focus:ring-wedding-600 outline-none">
+                    <option value="">Sem etiqueta</option>
+                    <option value="❤️ Amamos Muito">❤️ Amamos Muito</option>
+                    <option value="🏠 Essencial pra Casa">🏠 Essencial pra Casa</option>
+                    <option value="✨ Sonho de Consumo">✨ Sonho de Consumo</option>
+                    <option value="🍳 Mestre Cuca">🍳 Mestre Cuca</option>
+                    <option value="💡 Ideia Genial">💡 Ideia Genial</option>
+                  </select>
               </div>
           </div>
 
-          <!-- BOTÃO DE LINK (Ação Principal) -->
-          <!-- O href é preenchido pelo JS, mas deixei um padrão por segurança -->
-          <a id="livePixLink" href="https://livepix.gg/vickrossi" target="_blank" class="w-full bg-wedding-600 text-white font-bold py-3.5 rounded-xl hover:bg-wedding-800 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 mb-4 transform hover:-translate-y-0.5 group">
-              <span>Enviar PIX</span>
-              <!-- Ícone de seta externa -->
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="group-hover:translate-x-1 transition-transform">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-          </a>
-
-          <button type="button" onclick="closeModals()" class="w-full py-2 text-xs text-gray-400 hover:text-gray-600 font-medium transition-colors uppercase tracking-wider">
-              Fechar
-          </button>
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Categoria</label>
+            <select id="itemCategory"
+              class="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white focus:ring-1 focus:ring-wedding-600 outline-none">
+              <option value="Cozinha">Cozinha</option>
+              <option value="Sala">Sala</option>
+              <option value="Quarto">Quarto</option>
+              <option value="Banheiro">Banheiro</option>
+              <option value="Decoração">Decoração</option>
+              <option value="Limpeza">Limpeza</option>
+              <option value="Outros">Outros</option>
+            </select>
+          </div>
+          <div class="flex gap-4 pt-4">
+            <button type="submit" id="btnAddSubmit"
+              class="flex-1 bg-wedding-600 text-white py-2 rounded-lg hover:bg-wedding-800 transition-colors">Salvar</button>
+            <button type="button" onclick="hideAddForm()"
+              class="flex-1 bg-gray-100 text-gray-600 py-2 rounded-lg hover:bg-gray-200 transition-colors">Cancelar</button>
+          </div>
+        </form>
       </div>
+
+      <div class="filter-bar mb-10">
+        <div class="filter-inputs">
+    <select id="sortFilter" onchange="updateFilters()" class="modern-select text-sm text-gray-600">
+        <option value="name">Ordenar por Nome</option>
+        <option value="price-asc">Menor Preço</option>
+        <option value="price-desc">Maior Preço</option>
+    </select>
+
+    <select id="categoryFilter" onchange="updateFilters()" class="modern-select text-sm text-gray-600">
+        <option value="all">Todas as Categorias</option>
+        <option value="Cozinha">Cozinha</option>
+        <option value="Sala">Sala</option>
+        <option value="Quarto">Quarto</option>
+        <option value="Banheiro">Banheiro</option>
+        <option value="Decoração">Decoração</option>
+        <option value="Limpeza">Limpeza</option>
+        <option value="Outros">Outros</option>
+    </select>
+
+    <select id="tagFilter" onchange="updateFilters()" class="modern-select text-sm text-gray-600">
+        <option value="all">Todas as Etiquetas</option>
+        <option value="❤️ Amamos Muito">❤️ Amamos Muito</option>
+        <option value="🏠 Essencial pra Casa">🏠 Essencial pra Casa</option>
+        <option value="✨ Sonho de Consumo">✨ Sonho de Consumo</option>
+        <option value="🍳 Mestre Cuca">🍳 Mestre Cuca</option>
+        <option value="💡 Ideia Genial">💡 Ideia Genial</option>
+    </select>
+</div>
+      </div>
+
+      <div id="giftListContainer" class="space-y-16">
+        <div>
+          <h2 id="available-title" class="text-xl font-serif text-wedding-800 mb-8 flex items-center gap-3">
+            <span class="w-8 h-[1px] bg-wedding-600"></span>
+            Disponíveis
+          </h2>
+          <div id="availableGiftsList" class="grid gap-8 md:grid-cols-2 lg:grid-cols-3"></div>
+        </div>
+
+        <div id="reservedSection">
+          <h2 id="reserved-title" class="text-xl font-serif text-gray-400 mb-8 flex items-center gap-3">
+            <span class="w-8 h-[1px] bg-gray-300"></span>
+            Já Garantidos
+          </h2>
+          <div id="reservedGiftsList" class="grid gap-8 md:grid-cols-2 lg:grid-cols-3"></div>
+        </div>
+      </div>
+
+      <div id="editModal"
+        class="admin-only hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-2xl">
+          <form onsubmit="updateItem(event)" class="space-y-4"><input type="hidden" id="editItemId"><input type="hidden"
+              id="editItemCurrentImg">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nome</label><input type="text"
+                  id="editItemName" required class="w-full px-4 py-2 border rounded-lg"></div>
+              <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor</label><input type="text"
+                  id="editItemPrice" oninput="maskCurrency(this)" class="w-full px-4 py-2 border rounded-lg"></div>
+            </div>
+            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Link</label><input type="url"
+                id="editItemLink" required class="w-full px-4 py-2 border rounded-lg"></div>
+            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Imagem Manual</label><input
+                type="url" id="editItemImageManual" class="w-full px-4 py-2 border rounded-lg"></div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Detalhes (Cor / Tamanho)</label>
+                  <input type="text" id="editItemDescription" class="w-full px-4 py-2 border rounded-lg">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Etiqueta Especial</label>
+                  <select id="editItemTag" class="w-full px-4 py-2 border rounded-lg">
+                    <option value="">Sem etiqueta</option>
+                    <option value="❤️ Amamos Muito">❤️ Amamos Muito</option>
+                    <option value="🏠 Essencial pra Casa">🏠 Essencial pra Casa</option>
+                    <option value="✨ Sonho de Consumo">✨ Sonho de Consumo</option>
+                    <option value="🍳 Mestre Cuca">🍳 Mestre Cuca</option>
+                    <option value="💡 Ideia Genial">💡 Ideia Genial</option>
+                  </select>
+                </div>
+            </div>
+
+            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Categoria</label><select
+                id="editItemCategory" class="w-full px-4 py-2 border rounded-lg">
+                <option value="Cozinha">Cozinha</option>
+                <option value="Sala">Sala</option>
+                <option value="Quarto">Quarto</option>
+                <option value="Banheiro">Banheiro</option>
+                <option value="Decoração">Decoração</option>
+                <option value="Limpeza">Limpeza</option>
+                <option value="Outros">Outros</option>
+              </select></div>
+            <div class="flex gap-3 pt-4"><button type="submit" id="btnEditSubmit"
+                class="flex-1 bg-wedding-600 text-white py-2 rounded-lg">Salvar Alterações</button><button type="button"
+                onclick="hideEditModal()" class="flex-1 bg-gray-100 text-gray-600 py-2 rounded-lg">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div id="reserveModal"
+        class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md text-center">
+          <h3 class="text-2xl font-serif text-wedding-800 mb-2">Confirmar Escolha</h3>
+          <p class="text-gray-500 mb-6 text-sm">Reservar este item como <strong id="reserveGuestNameDisplay"
+              class="text-wedding-600"></strong>?</p>
+          <form id="reserveForm" class="space-y-4"><input type="hidden" id="reserveGiftId">
+            <div class="flex gap-3 pt-2"><button type="button" onclick="hideReserveModal()"
+                class="flex-1 bg-white border border-gray-200 text-gray-600 py-2 rounded-lg hover:bg-gray-50">Cancelar</button><button
+                type="submit"
+                class="flex-1 bg-wedding-600 text-white font-medium py-2 rounded-lg hover:bg-wedding-800 shadow-md">Sim,
+                Confirmar</button></div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="rsvpModal"
+    class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+    <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-sm">
+      <h3 class="text-2xl font-serif text-wedding-800 mb-2">Confirmar Presença</h3>
+      <p class="text-gray-500 mb-6 text-sm">Que alegria ter você conosco! Digite seu nome completo.</p>
+      <form onsubmit="handleRSVP(event)" class="space-y-4"><input type="text" id="rsvpName" required
+          placeholder="Seu nome completo"
+          class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 focus:ring-wedding-600 outline-none transition-all"><button
+          type="submit"
+          class="w-full bg-wedding-600 text-white font-medium py-3 rounded-lg hover:bg-wedding-800 transition-colors shadow-md">Confirmar
+          e Entrar</button><button type="button" onclick="closeModals()"
+          class="w-full text-gray-400 py-2 text-xs hover:text-gray-600">Cancelar</button></form>
+    </div>
+  </div>
+  <div id="loginGuestModal"
+    class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+    <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-sm">
+      <h3 class="text-2xl font-serif text-wedding-800 mb-2">Bem-vindo de volta</h3>
+      <p class="text-gray-500 mb-6 text-sm">Digite o nome usado na confirmação.</p>
+      <form onsubmit="handleGuestLogin(event)" class="space-y-4"><input type="text" id="loginGuestName" required
+          placeholder="Seu nome completo"
+          class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 focus:ring-wedding-600 outline-none transition-all"><button
+          type="submit"
+          class="w-full bg-wedding-600 text-white font-medium py-3 rounded-lg hover:bg-wedding-800 transition-colors shadow-md">Acessar
+          Lista</button><button type="button" onclick="closeModals()"
+          class="w-full text-gray-400 py-2 text-xs hover:text-gray-600">Cancelar</button></form>
+    </div>
+  </div>
+  <div id="pixModal"
+    class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm text-center relative overflow-hidden">
+
+      <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-wedding-100 via-wedding-600 to-wedding-100">
+      </div>
+
+      <h3 class="text-2xl font-serif text-wedding-800 mb-2 mt-4">Mimo via PIX</h3>
+      <p class="text-gray-500 text-xs mb-8 px-2">
+        Envie sua mensagem de carinho e contribua com nosso sonho de forma prática.
+      </p>
+
+      <div class="flex justify-center mb-8">
+        <div
+          class="w-36 h-36 bg-wedding-50 rounded-full flex items-center justify-center border-[6px] border-white shadow-lg ring-1 ring-gray-100 relative group">
+          <div class="absolute inset-2 border border-wedding-200 rounded-full opacity-60"></div>
+
+          <span
+            class="font-serif text-5xl text-wedding-800 tracking-tighter z-10 group-hover:scale-105 transition-transform duration-500">
+            V<span class="text-wedding-600 text-3xl italic mx-1 font-light">&</span>J
+          </span>
+        </div>
+      </div>
+
+      <a id="livePixLink" href="https://livepix.gg/vickrossi" target="_blank"
+        class="w-full bg-wedding-600 text-white font-bold py-3.5 rounded-xl hover:bg-wedding-800 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 mb-4 transform hover:-translate-y-0.5 group">
+        <span>Enviar PIX</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor" class="group-hover:translate-x-1 transition-transform">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+        </svg>
+      </a>
+
+      <button type="button" onclick="closeModals()"
+        class="w-full py-2 text-xs text-gray-400 hover:text-gray-600 font-medium transition-colors uppercase tracking-wider">
+        Fechar
+      </button>
+    </div>
   </div>
   <script type="module" src="app.js"></script>
 </body>
+
 </html>

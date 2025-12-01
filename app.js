@@ -1,4 +1,4 @@
-/* --- app.js (Com Persistência de Login) --- */
+/* --- app.js (Com Filtro de Etiquetas) --- */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
@@ -23,13 +23,16 @@ const db = getFirestore(app);
 let gifts = [];
 let isAdminMode = false;
 
-// MODIFICAÇÃO AQUI: Tenta recuperar o usuário da memória do navegador
+// Recupera usuário do localStorage
 let currentUser = localStorage.getItem('weddingUser') || null; 
 
 let isViewOnly = false;
 let activeSort = 'name';
 let activeCategory = 'all';
-const ADMIN_EMAIL = "admin@gmail.com"; 
+// NOVO: Variável para filtro de etiqueta
+let activeTag = 'all'; 
+
+const ADMIN_EMAIL = "admin2@gmail.com"; 
 
 // --- 3. ÍCONES SVG ---
 const categoryIcons = {
@@ -55,7 +58,6 @@ onAuthStateChanged(auth, user => {
     if(landing) landing.style.display = 'none';
     enterMainSite();
   } 
-  // Verifica se existe usuário na variável (que veio do localStorage)
   else if (currentUser || isViewOnly) {
      console.log("Convidado recuperado da memória");
      if(loader) loader.style.display = 'none';
@@ -95,7 +97,6 @@ window.handleRSVP = async (e) => {
         }
         
         currentUser = name;
-        // MODIFICAÇÃO: Salva no localStorage
         localStorage.setItem('weddingUser', name);
         
         isViewOnly = false;
@@ -123,7 +124,6 @@ window.handleGuestLogin = async (e) => {
             document.getElementById('rsvpName').value = name;
         } else {
             currentUser = name;
-            // MODIFICAÇÃO: Salva no localStorage
             localStorage.setItem('weddingUser', name);
             
             isViewOnly = false;
@@ -143,7 +143,6 @@ window.logoutGuest = () => {
     if(isAdminMode) {
         signOut(auth);
     }
-    // MODIFICAÇÃO: Limpa a memória ao sair
     localStorage.removeItem('weddingUser');
     currentUser = null;
     window.location.reload();
@@ -200,9 +199,11 @@ async function fetchGifts() {
     } catch (error) { console.error("Erro ao buscar presentes:", error); }
 }
 
+// --- ATUALIZAÇÃO: Pega o valor do novo filtro de tag ---
 window.updateFilters = () => {
     activeSort = document.getElementById('sortFilter').value;
     activeCategory = document.getElementById('categoryFilter').value;
+    activeTag = document.getElementById('tagFilter').value; // NOVO
     renderGifts();
 }
 
@@ -215,8 +216,14 @@ function renderGifts() {
     reservedList.innerHTML = '';
 
     let filtered = gifts;
-    if(activeCategory !== 'all') filtered = gifts.filter(g => g.category === activeCategory);
     
+    // 1. Filtro por Categoria
+    if(activeCategory !== 'all') filtered = filtered.filter(g => g.category === activeCategory);
+    
+    // 2. NOVO: Filtro por Etiqueta
+    if(activeTag !== 'all') filtered = filtered.filter(g => g.tag === activeTag);
+    
+    // 3. Ordenação
     filtered.sort((a, b) => {
         if(activeSort === 'name') return a.name.localeCompare(b.name);
         if(activeSort === 'price-asc') return (a.price||0) - (b.price||0);
@@ -230,12 +237,37 @@ function renderGifts() {
     document.getElementById('available-title').innerHTML = `Disponíveis <span class="bg-wedding-50 text-wedding-800 text-lg font-bold px-3 py-1 rounded-full ml-2 align-middle">${avail.length}</span>`;
     document.getElementById('reserved-title').innerHTML = `Garantidos <span class="bg-gray-100 text-gray-500 text-lg font-bold px-3 py-1 rounded-full ml-2 align-middle">${reserv.length}</span>`;
 
+    // --- MAPA DE CORES DAS ETIQUETAS ---
+    const tagColors = {
+        "❤️ Amamos Muito": "bg-red-100 text-red-800 border-red-200",
+        "🏠 Essencial pra Casa": "bg-blue-100 text-blue-800 border-blue-200",
+        "✨ Sonho de Consumo": "bg-purple-100 text-purple-800 border-purple-200",
+        "🍳 Mestre Cuca": "bg-orange-100 text-orange-800 border-orange-200",
+        "💡 Ideia Genial": "bg-yellow-100 text-yellow-800 border-yellow-200"
+    };
+
     const createCard = (gift, isReserved, index) => {
         const defaultImg = "https://placehold.co/400x300/f4f7f5/cbd5e1?text=Sem+Foto";
         const img = (gift.image && gift.image.trim()) ? gift.image : defaultImg;
         const price = gift.price ? gift.price.toLocaleString('pt-BR', {style:'currency', currency:'BRL'}) : '';
         const icon = categoryIcons[gift.category] || categoryIcons["Outros"];
         
+        // --- 1. DESCRIÇÃO (Clean) ---
+        const descriptionHtml = gift.description 
+            ? `<div class="text-xs text-gray-500 mb-2 italic">
+                 Obs: ${gift.description}
+               </div>` 
+            : '';
+
+        // --- 2. TAG COM COR DINÂMICA ---
+        const badgeColor = tagColors[gift.tag] || "bg-gray-100 text-gray-800 border-gray-200";
+        
+        const tagBadge = gift.tag 
+            ? `<div class="absolute top-2 left-2 ${badgeColor} text-[10px] font-bold px-2 py-1 rounded-md border shadow-sm z-20 flex items-center gap-1">
+                 ${gift.tag}
+               </div>`
+            : '';
+
         const adminBtns = isAdminMode ? `
             <div class="admin-controls">
                 <button onclick="editItem('${gift.id}')" class="admin-btn text-blue-600 hover:bg-blue-50" title="Editar">
@@ -286,6 +318,9 @@ function renderGifts() {
             <div class="item-card bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col ${isReserved ? 'opacity-80' : ''}">
                 <div class="relative">
                     ${adminBtns}
+                    
+                    ${tagBadge}
+
                     <div class="h-48 w-full bg-white flex items-center justify-center overflow-hidden p-4 border-b border-gray-50">
                         <img src="${img}" class="max-h-full object-contain transition-transform duration-500 hover:scale-105 ${isReserved ? 'grayscale opacity-50' : ''}" onerror="this.src='${defaultImg}'">
                     </div>
@@ -300,6 +335,9 @@ function renderGifts() {
                     </div>
                     
                     <h3 class="text-base font-serif font-bold text-gray-800 leading-tight mb-1 ${isReserved?'line-through text-gray-400':''}">${gift.name}</h3>
+                    
+                    ${descriptionHtml}
+                    
                     ${!isReserved && price ? `<div class="text-sm font-medium text-wedding-600 mb-2">${price}</div>` : ''}
                     
                     ${actions}
@@ -333,6 +371,12 @@ window.addItem = async (e) => {
     const cat = document.getElementById('itemCategory').value;
     const manualImg = document.getElementById('itemImageManual').value;
     
+    // Pega a descrição do input
+    const description = document.getElementById('itemDescription').value;
+    
+    // NOVO: Pega a TAG
+    const tag = document.getElementById('itemTag').value;
+    
     let price = document.getElementById('itemPrice').value.replace(/[^\d,]/g, '').replace(',', '.');
     price = parseFloat(price) || 0;
 
@@ -340,7 +384,10 @@ window.addItem = async (e) => {
     if(!image) image = "";
 
     try {
-        await addDoc(collection(db, 'gifts'), { name, link, category: cat, price, image, purchased: false, purchasedBy: "" });
+        // Inclui 'description' e 'tag' ao salvar
+        await addDoc(collection(db, 'gifts'), { 
+            name, link, category: cat, price, image, description, tag, purchased: false, purchasedBy: "" 
+        });
         window.hideAddForm(); fetchGifts();
     } catch(err) { console.error(err); alert("Erro ao adicionar."); } 
     finally { btn.innerText = oldTxt; btn.disabled = false; }
@@ -354,10 +401,21 @@ window.updateItem = async (e) => {
     const cat = document.getElementById('editItemCategory').value;
     const manualImg = document.getElementById('editItemImageManual').value;
     const currImg = document.getElementById('editItemCurrentImg').value;
+    
+    // Pega descrição
+    const description = document.getElementById('editItemDescription').value;
+    
+    // NOVO: Pega a TAG
+    const tag = document.getElementById('editItemTag').value;
+
     let price = document.getElementById('editItemPrice').value.replace(/[^\d,]/g, '').replace(',', '.');
     price = parseFloat(price) || 0;
     let image = manualImg ? manualImg : ((!currImg) ? await fetchMetaImage(link) : currImg);
-    try { await updateDoc(doc(db, 'gifts', id), { name, link, category: cat, price, image }); window.hideEditModal(); fetchGifts(); } catch(err){console.error(err);}
+    try { 
+        // Inclui 'description' e 'tag' ao atualizar
+        await updateDoc(doc(db, 'gifts', id), { name, link, category: cat, price, image, description, tag }); 
+        window.hideEditModal(); fetchGifts(); 
+    } catch(err){console.error(err);}
 }
 
 window.showAddForm = () => document.getElementById('addForm').classList.remove('hidden');
@@ -374,6 +432,13 @@ window.editItem = (id) => {
     document.getElementById('editItemPrice').value = g.price ? g.price.toLocaleString('pt-BR', {style:'currency', currency:'BRL'}) : '';
     document.getElementById('editItemImageManual').value = g.image || '';
     document.getElementById('editItemCurrentImg').value = g.image || '';
+
+    // Preenche o campo de descrição
+    document.getElementById('editItemDescription').value = g.description || '';
+    
+    // NOVO: Preenche a TAG no modal
+    document.getElementById('editItemTag').value = g.tag || '';
+
     document.getElementById('editModal').classList.remove('hidden');
 }
 

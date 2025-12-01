@@ -122,10 +122,10 @@ body {
     }
     
     .filter-inputs {
-        /* No computador, muda para linha (um ao lado do outro) */
+
         flex-direction: row; 
         min-width: 60%;
-        /* O gap de 1rem já foi herdado da regra acima */
+      
       
     }
 }

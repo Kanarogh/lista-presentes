@@ -310,14 +310,20 @@ function renderGifts() {
 
         if(isReserved) {
             const isMine = currentUser && gift.purchasedBy === currentUser;
+            // Verifica se tem mensagem e se é admin ou o dono
+            const messageDisplay = (gift.guestMessage && isAdminMode) 
+                ? `<div class="mt-2 p-2 bg-yellow-50 border border-yellow-100 rounded text-xs text-gray-600 italic">"${gift.guestMessage}"</div>` 
+                : '';
+
             actions = `
                 <div class="mt-4 pt-4 border-t border-gray-50">
                     <p class="text-[10px] uppercase tracking-wider text-center text-gray-400 mb-1">Reservado por</p>
                     <p class="text-sm font-bold text-center text-wedding-800 bg-wedding-50 p-1.5 rounded">${gift.purchasedBy}</p>
-                    ${(isMine && !isAdminMode) ? `<button onclick="cancelRes('${gift.id}')" class="w-full mt-2 text-xs text-red-400 hover:text-red-600 underline">Cancelar minha reserva</button>` : ''}
+                    
+                    ${messageDisplay} ${(isMine && !isAdminMode) ? `<button onclick="cancelRes('${gift.id}')" class="w-full mt-2 text-xs text-red-400 hover:text-red-600 underline">Cancelar minha reserva</button>` : ''}
                     ${isAdminMode ? `<button onclick="toggleStatus('${gift.id}', true)" class="w-full mt-2 text-xs text-blue-400 hover:text-blue-600 underline">Admin: Liberar</button>` : ''}
                 </div>`;
-        } else {
+        }else {
             if(isAdminMode) {
                 actions = `
                     <div class="mt-auto pt-4 space-y-2 border-t border-dashed border-gray-100 mt-4">
@@ -487,24 +493,34 @@ if(reserveForm) {
     reserveForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const id = document.getElementById('reserveGiftId').value;
+        const msg = document.getElementById('reserveMessage').value; // PEGA A MENSAGEM
+
         try {
             await runTransaction(db, async (t) => {
                 const d = await t.get(doc(db, 'gifts', id));
-                if(d.data().purchased) throw "Já reservado.";
-                t.update(doc(db, 'gifts', id), { purchased: true, purchasedBy: currentUser });
+                if(d.data().purchased) throw "Ops! Alguém acabou de reservar este item.";
+                
+                // Salva com a mensagem
+                t.update(doc(db, 'gifts', id), { 
+                    purchased: true, 
+                    purchasedBy: currentUser,
+                    guestMessage: msg // Salva no banco
+                });
             });
-            window.hideReserveModal(); fetchGifts();
+            window.hideReserveModal(); 
+            fetchGifts();
 
-            // --- NOVO: EFEITO DE CONFETE APÓS SUCESSO ---
-            confetti({
-                particleCount: 150,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#4a7c59', '#e3ebe5', '#ff0000', '#ffd700']
-            });
-            // -------------------------------------------
+            // Efeito Confete
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#4a7c59', '#e3ebe5', '#ff0000', '#ffd700'] });
+            
+            // Toast Bonito
+            window.showToast("Presente reservado com sucesso!", "success");
 
-        } catch(err) { alert("Este item já foi reservado por outra pessoa."); window.hideReserveModal(); fetchGifts(); }
+        } catch(err) { 
+            window.showToast(err, "error"); // Toast de Erro
+            window.hideReserveModal(); 
+            fetchGifts(); 
+        }
     });
 }
 
@@ -512,4 +528,24 @@ window.cancelRes = async (id) => {
     if(confirm("Tem certeza que deseja cancelar sua reserva?")) {
         try { await updateDoc(doc(db, 'gifts', id), { purchased: false, purchasedBy: "" }); fetchGifts(); } catch(err) { alert(err.message); }
     }
+}
+
+window.showToast = (message, type = 'success') => {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    // Ícones baseados no tipo
+    let icon = '';
+    if(type === 'success') icon = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>';
+    if(type === 'error') icon = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>';
+    
+    toast.innerHTML = `${icon}<span>${message}</span>`;
+    container.appendChild(toast);
+
+    // Remove depois de 3 segundos
+    setTimeout(() => {
+        toast.classList.add('hide');
+        toast.addEventListener('animationend', () => toast.remove());
+    }, 3000);
 }

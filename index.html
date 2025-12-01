@@ -7,6 +7,7 @@
   <title>Chá de Noivado - Vitória & Jhonatas</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -146,6 +147,38 @@
         <div id="modeIndicator" class="mt-2 block text-gray-400 text-[10px] uppercase tracking-widest"></div>
       </header>
 
+      <div id="adminDashboard" class="admin-only hidden mb-12">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-center gap-4">
+                <div class="bg-blue-50 p-3 rounded-full text-blue-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">Total de Itens</p>
+                    <p class="text-2xl font-bold text-gray-800" id="dashTotalItems">0</p>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-center gap-4">
+                <div class="bg-green-50 p-3 rounded-full text-green-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">Presentes Garantidos</p>
+                    <p class="text-2xl font-bold text-gray-800" id="dashTotalPurchased">0</p>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-center gap-4">
+                <div class="bg-yellow-50 p-3 rounded-full text-yellow-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">Valor Arrecadado</p>
+                    <p class="text-2xl font-bold text-wedding-600" id="dashTotalValue">R$ 0,00</p>
+                </div>
+            </div>
+        </div>
+      </div>
+
       <div class="admin-only text-center mb-10">
         <button onclick="showAddForm()"
           class="bg-gray-800 text-white px-6 py-3 rounded-lg text-sm font-medium shadow-lg hover:bg-black transition-all flex items-center gap-2 mx-auto">
@@ -218,33 +251,44 @@
       </div>
 
       <div class="filter-bar mb-10">
+        <div class="w-full mb-4 md:mb-0 md:mr-4">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <input type="text" id="searchInput" oninput="updateFilters()" placeholder="Buscar presente por nome..." class="w-full pl-10 pr-4 py-2 border border-wedding-100 rounded-lg text-sm focus:ring-1 focus:ring-wedding-600 outline-none bg-wedding-50/50">
+            </div>
+        </div>
+
         <div class="filter-inputs">
-    <select id="sortFilter" onchange="updateFilters()" class="modern-select text-sm text-gray-600">
-        <option value="name">Ordenar por Nome</option>
-        <option value="price-asc">Menor Preço</option>
-        <option value="price-desc">Maior Preço</option>
-    </select>
+            <select id="sortFilter" onchange="updateFilters()" class="modern-select text-sm text-gray-600">
+                <option value="name">Ordenar por Nome</option>
+                <option value="price-asc">Menor Preço</option>
+                <option value="price-desc">Maior Preço</option>
+            </select>
 
-    <select id="categoryFilter" onchange="updateFilters()" class="modern-select text-sm text-gray-600">
-        <option value="all">Todas as Categorias</option>
-        <option value="Cozinha">Cozinha</option>
-        <option value="Sala">Sala</option>
-        <option value="Quarto">Quarto</option>
-        <option value="Banheiro">Banheiro</option>
-        <option value="Decoração">Decoração</option>
-        <option value="Limpeza">Limpeza</option>
-        <option value="Outros">Outros</option>
-    </select>
+            <select id="categoryFilter" onchange="updateFilters()" class="modern-select text-sm text-gray-600">
+                <option value="all">Todas as Categorias</option>
+                <option value="Cozinha">Cozinha</option>
+                <option value="Sala">Sala</option>
+                <option value="Quarto">Quarto</option>
+                <option value="Banheiro">Banheiro</option>
+                <option value="Decoração">Decoração</option>
+                <option value="Limpeza">Limpeza</option>
+                <option value="Outros">Outros</option>
+            </select>
 
-    <select id="tagFilter" onchange="updateFilters()" class="modern-select text-sm text-gray-600">
-        <option value="all">Todas as Etiquetas</option>
-        <option value="❤️ Amamos Muito">❤️ Amamos Muito</option>
-        <option value="🏠 Essencial pra Casa">🏠 Essencial pra Casa</option>
-        <option value="✨ Sonho de Consumo">✨ Sonho de Consumo</option>
-        <option value="🍳 Mestre Cuca">🍳 Mestre Cuca</option>
-        <option value="💡 Ideia Genial">💡 Ideia Genial</option>
-    </select>
-</div>
+            <select id="tagFilter" onchange="updateFilters()" class="modern-select text-sm text-gray-600">
+                <option value="all">Todas as Etiquetas</option>
+                <option value="❤️ Amamos Muito">❤️ Amamos Muito</option>
+                <option value="🏠 Essencial pra Casa">🏠 Essencial pra Casa</option>
+                <option value="✨ Sonho de Consumo">✨ Sonho de Consumo</option>
+                <option value="🍳 Mestre Cuca">🍳 Mestre Cuca</option>
+                <option value="💡 Ideia Genial">💡 Ideia Genial</option>
+            </select>
+        </div>
       </div>
 
       <div id="giftListContainer" class="space-y-16">
@@ -371,7 +415,7 @@
       </div>
 
       <h3 class="text-2xl font-serif text-wedding-800 mb-2 mt-4">Mimo via PIX</h3>
-      <p class="text-gray-500 text-xs mb-8 px-2">
+      <p class="text-gray-700 text-sm font-medium mb-8 px-4 leading-relaxed">
         Envie sua mensagem de carinho e contribua com nosso sonho de forma prática.
       </p>
 

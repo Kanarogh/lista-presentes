@@ -1,4 +1,4 @@
-/* --- app.js (Com Filtro de Etiquetas) --- */
+/* --- app.js (Com Busca, Confetes e Dashboard Admin) --- */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
@@ -29,15 +29,15 @@ let currentUser = localStorage.getItem('weddingUser') || null;
 let isViewOnly = false;
 let activeSort = 'name';
 let activeCategory = 'all';
-// NOVO: Variável para filtro de etiqueta
-let activeTag = 'all'; 
+let activeTag = 'all';
+let searchTerm = ''; // NOVO: Variável para busca
 
 const ADMIN_EMAIL = "admin2@gmail.com"; 
 
 // --- 3. ÍCONES SVG ---
 const categoryIcons = {
     "Cozinha": `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>`,
-    "Sala": `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>`,
+    "Sala": `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>`,
     "Quarto": `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>`,
     "Banheiro": `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>`,
     "Decoração": `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>`,
@@ -159,6 +159,7 @@ function enterMainSite() {
 function updateUI() {
     const welcome = document.getElementById('guestWelcome');
     const indicator = document.getElementById('modeIndicator');
+    const dashboard = document.getElementById('adminDashboard');
     const body = document.body;
     
     if (isAdminMode) {
@@ -166,16 +167,39 @@ function updateUI() {
         body.classList.remove('user-mode');
         welcome.innerHTML = 'Modo Edição Ativo';
         welcome.classList.remove('hidden');
+        if(dashboard) dashboard.classList.remove('hidden'); // Mostra o dashboard
     } else if (currentUser) {
         indicator.innerHTML = 'Acesso Confirmado';
         body.classList.add('user-mode');
         welcome.innerHTML = `Olá, ${currentUser}`;
         welcome.classList.remove('hidden');
+        if(dashboard) dashboard.classList.add('hidden');
     } else {
         indicator.innerHTML = 'Apenas Visualizando';
         body.classList.add('user-mode');
         welcome.classList.add('hidden');
+        if(dashboard) dashboard.classList.add('hidden');
     }
+}
+
+// --- NOVO: Função para atualizar o Dashboard Admin ---
+function calculateAdminStats() {
+    if (!isAdminMode) return;
+
+    const totalItems = gifts.length;
+    const purchasedItems = gifts.filter(g => g.purchased).length;
+    
+    // Calcula o valor total (trata possíveis strings ou nulos)
+    const totalValue = gifts.reduce((acc, g) => {
+        if (g.purchased && g.price) {
+            return acc + Number(g.price);
+        }
+        return acc;
+    }, 0);
+
+    document.getElementById('dashTotalItems').innerText = totalItems;
+    document.getElementById('dashTotalPurchased').innerText = purchasedItems;
+    document.getElementById('dashTotalValue').innerText = totalValue.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
 }
 
 // --- 7. CARREGAMENTO E RENDERIZAÇÃO ---
@@ -196,14 +220,16 @@ async function fetchGifts() {
         const snapshot = await getDocs(collection(db, 'gifts'));
         gifts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
         renderGifts();
+        calculateAdminStats(); // Atualiza estatísticas sempre que buscar
     } catch (error) { console.error("Erro ao buscar presentes:", error); }
 }
 
-// --- ATUALIZAÇÃO: Pega o valor do novo filtro de tag ---
+// --- ATUALIZAÇÃO: Pega o valor do novo filtro de tag e busca ---
 window.updateFilters = () => {
     activeSort = document.getElementById('sortFilter').value;
     activeCategory = document.getElementById('categoryFilter').value;
-    activeTag = document.getElementById('tagFilter').value; // NOVO
+    activeTag = document.getElementById('tagFilter').value; 
+    searchTerm = document.getElementById('searchInput').value.toLowerCase(); // NOVO: Busca
     renderGifts();
 }
 
@@ -220,10 +246,13 @@ function renderGifts() {
     // 1. Filtro por Categoria
     if(activeCategory !== 'all') filtered = filtered.filter(g => g.category === activeCategory);
     
-    // 2. NOVO: Filtro por Etiqueta
+    // 2. Filtro por Etiqueta
     if(activeTag !== 'all') filtered = filtered.filter(g => g.tag === activeTag);
+
+    // 3. NOVO: Filtro por Texto (Nome)
+    if(searchTerm) filtered = filtered.filter(g => g.name.toLowerCase().includes(searchTerm));
     
-    // 3. Ordenação
+    // 4. Ordenação
     filtered.sort((a, b) => {
         if(activeSort === 'name') return a.name.localeCompare(b.name);
         if(activeSort === 'price-asc') return (a.price||0) - (b.price||0);
@@ -261,7 +290,6 @@ function renderGifts() {
 
         // --- 2. TAG COM COR DINÂMICA ---
         const badgeColor = tagColors[gift.tag] || "bg-gray-100 text-gray-800 border-gray-200";
-        
         const tagBadge = gift.tag 
             ? `<div class="absolute top-2 left-2 ${badgeColor} text-[10px] font-bold px-2 py-1 rounded-md border shadow-sm z-20 flex items-center gap-1">
                  ${gift.tag}
@@ -466,6 +494,16 @@ if(reserveForm) {
                 t.update(doc(db, 'gifts', id), { purchased: true, purchasedBy: currentUser });
             });
             window.hideReserveModal(); fetchGifts();
+
+            // --- NOVO: EFEITO DE CONFETE APÓS SUCESSO ---
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#4a7c59', '#e3ebe5', '#ff0000', '#ffd700']
+            });
+            // -------------------------------------------
+
         } catch(err) { alert("Este item já foi reservado por outra pessoa."); window.hideReserveModal(); fetchGifts(); }
     });
 }
